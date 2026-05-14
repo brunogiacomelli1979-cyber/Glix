@@ -3,7 +3,9 @@
 ## Estrutura Geral
 
 Frontend:
-- FlutterFlow
+- Next.js (TypeScript, App Router)
+- Tailwind CSS
+- shadcn/ui
 
 Backend:
 - Supabase
@@ -21,7 +23,7 @@ Versionamento:
 
 ## Fluxo Principal
 
-Usuário → FlutterFlow → Supabase → Dashboard
+Usuário → Next.js (Frontend) → Supabase (Backend/Auth) → Dashboard
 
 ---
 

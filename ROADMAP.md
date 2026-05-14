@@ -7,7 +7,7 @@
 - Estrutura do MVP
 
 ## Fase 2
-- FlutterFlow
+- Next.js & UI Components
 - Autenticação
 - Registro de glicemia
 - Dashboard
