@@ -52,6 +52,53 @@ export async function createGlucoseRecord(formData: FormData) {
   redirect("/dashboard?success=Registro salvo.");
 }
 
+export async function updateGlucoseRecord(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const id = String(formData.get("id") ?? "");
+  const value = Number(formData.get("value_mgdl"));
+  const context = String(formData.get("context") ?? "");
+  const recordedAt = String(formData.get("recorded_at") ?? "");
+  const notes = String(formData.get("notes") ?? "").trim();
+
+  if (!id) {
+    redirect("/dashboard?error=Registro não encontrado.");
+  }
+
+  if (!Number.isInteger(value) || value <= 0 || value >= 1500) {
+    redirect("/dashboard?error=Informe um valor de glicemia válido.");
+  }
+
+  if (!validContexts.has(context)) {
+    redirect("/dashboard?error=Selecione um contexto válido.");
+  }
+
+  const { error } = await supabase
+    .from("glucose_records")
+    .update({
+      value_mgdl: value,
+      context,
+      recorded_at: recordedAt ? new Date(recordedAt).toISOString() : new Date().toISOString(),
+      notes: notes || null,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    redirect(`/dashboard?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/dashboard");
+  redirect("/dashboard?success=Registro atualizado.");
+}
+
 export async function deleteGlucoseRecord(formData: FormData) {
   const supabase = await createClient();
   const {

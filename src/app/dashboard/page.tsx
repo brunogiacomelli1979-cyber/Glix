@@ -1,7 +1,11 @@
-import { Activity, CalendarClock, Plus, Trash2 } from "lucide-react";
+import { Activity, CalendarClock, Pencil, Plus, Save, Trash2 } from "lucide-react";
 
 import { logout } from "@/app/auth/actions";
-import { createGlucoseRecord, deleteGlucoseRecord } from "@/app/dashboard/actions";
+import {
+  createGlucoseRecord,
+  deleteGlucoseRecord,
+  updateGlucoseRecord,
+} from "@/app/dashboard/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,6 +49,10 @@ function formatDate(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function formatDateTimeInput(value: string) {
+  return new Date(value).toISOString().slice(0, 16);
 }
 
 function getAverage(records: GlucoseRecord[]) {
@@ -293,6 +301,66 @@ export default async function DashboardPage({
                             <Trash2 className="size-4" />
                           </Button>
                         </form>
+                        <details className="col-span-full rounded-lg bg-slate-50 px-3 py-2">
+                          <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-emerald-700">
+                            <Pencil className="size-4" />
+                            Editar registro
+                          </summary>
+                          <form action={updateGlucoseRecord} className="mt-4 grid gap-3 md:grid-cols-2">
+                            <input type="hidden" name="id" value={record.id} />
+                            <div className="space-y-2">
+                              <Label htmlFor={`value-${record.id}`}>Glicemia (mg/dL)</Label>
+                              <Input
+                                id={`value-${record.id}`}
+                                name="value_mgdl"
+                                type="number"
+                                min="1"
+                                max="1499"
+                                defaultValue={record.value_mgdl}
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`context-${record.id}`}>Contexto</Label>
+                              <select
+                                id={`context-${record.id}`}
+                                name="context"
+                                required
+                                className="h-9 w-full rounded-lg border border-input bg-white px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                                defaultValue={record.context}
+                              >
+                                {contexts.map(([value, label]) => (
+                                  <option key={value} value={value}>
+                                    {label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`recorded-${record.id}`}>Data e horário</Label>
+                              <Input
+                                id={`recorded-${record.id}`}
+                                name="recorded_at"
+                                type="datetime-local"
+                                defaultValue={formatDateTimeInput(record.recorded_at)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`notes-${record.id}`}>Observações</Label>
+                              <textarea
+                                id={`notes-${record.id}`}
+                                name="notes"
+                                rows={3}
+                                defaultValue={record.notes ?? ""}
+                                className="w-full resize-none rounded-lg border border-input bg-white px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                              />
+                            </div>
+                            <Button type="submit" className="md:col-span-2">
+                              <Save className="size-4" />
+                              Salvar alterações
+                            </Button>
+                          </form>
+                        </details>
                       </div>
                     ))}
                   </div>
