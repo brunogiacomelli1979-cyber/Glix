@@ -80,6 +80,123 @@ function getStatus(value?: number) {
   return "Dentro da faixa";
 }
 
+function getChartData(records: GlucoseRecord[]) {
+  return [...records].sort(
+    (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
+  );
+}
+
+function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
+  const chartRecords = getChartData(records);
+
+  if (chartRecords.length === 0) {
+    return (
+      <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-300 text-center text-sm text-slate-500">
+        O gráfico aparece depois do primeiro registro.
+      </div>
+    );
+  }
+
+  const width = 680;
+  const height = 260;
+  const padding = { top: 20, right: 20, bottom: 46, left: 58 };
+  const values = chartRecords.map((record) => record.value_mgdl);
+  const minValue = Math.max(0, Math.min(...values) - 20);
+  const maxValue = Math.max(...values) + 20;
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const valueRange = Math.max(1, maxValue - minValue);
+
+  const points = chartRecords.map((record, index) => {
+    const x =
+      padding.left +
+      (chartRecords.length === 1 ? chartWidth / 2 : (index / (chartRecords.length - 1)) * chartWidth);
+    const y =
+      padding.top + chartHeight - ((record.value_mgdl - minValue) / valueRange) * chartHeight;
+
+    return {
+      ...record,
+      x,
+      y,
+      label: new Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+      }).format(new Date(record.recorded_at)),
+    };
+  });
+
+  const linePath = points.map((point) => `${point.x},${point.y}`).join(" ");
+  const yTicks = [minValue, Math.round((minValue + maxValue) / 2), maxValue];
+
+  return (
+    <div className="overflow-x-auto">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label="Gráfico de evolução da glicemia"
+        className="min-w-[560px] rounded-xl bg-white"
+      >
+        {yTicks.map((tick) => {
+          const y = padding.top + chartHeight - ((tick - minValue) / valueRange) * chartHeight;
+
+          return (
+            <g key={tick}>
+              <line
+                x1={padding.left}
+                x2={width - padding.right}
+                y1={y}
+                y2={y}
+                stroke="#e2e8f0"
+              />
+              <text x={10} y={y + 4} className="fill-slate-500 text-xs">
+                {tick} mg/dL
+              </text>
+            </g>
+          );
+        })}
+
+        <line
+          x1={padding.left}
+          x2={padding.left}
+          y1={padding.top}
+          y2={height - padding.bottom}
+          stroke="#94a3b8"
+        />
+        <line
+          x1={padding.left}
+          x2={width - padding.right}
+          y1={height - padding.bottom}
+          y2={height - padding.bottom}
+          stroke="#94a3b8"
+        />
+
+        {points.length > 1 && (
+          <polyline fill="none" stroke="#059669" strokeWidth="3" points={linePath} />
+        )}
+
+        {points.map((point, index) => (
+          <g key={point.id}>
+            <circle cx={point.x} cy={point.y} r="5" className="fill-emerald-600" />
+            <text x={point.x} y={point.y - 10} textAnchor="middle" className="fill-slate-700 text-xs">
+              {point.value_mgdl}
+            </text>
+            {(index === 0 || index === points.length - 1 || points.length <= 6) && (
+              <text
+                x={point.x}
+                y={height - 18}
+                textAnchor="middle"
+                className="fill-slate-500 text-xs"
+              >
+                {point.label}
+              </text>
+            )}
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -168,6 +285,18 @@ export default async function DashboardPage({
             </CardHeader>
           </Card>
         </section>
+
+        <Card className="rounded-lg">
+          <CardHeader>
+            <CardTitle>Evolução da glicemia</CardTitle>
+            <CardDescription>
+              Registros exibidos em ordem cronológica, com valores em mg/dL.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <GlucoseChart records={records} />
+          </CardContent>
+        </Card>
 
         <section className="grid gap-6 lg:grid-cols-[380px_1fr]">
           <Card className="rounded-lg">
