@@ -9,9 +9,9 @@ Repository: [https://github.com/brunogiacomelli1979-cyber/Glix](https://github.c
 
 ## Status
 
-Current status: portfolio-ready MVP.
+Current status: portfolio-ready MVP published in production.
 
-The project already includes authentication, protected dashboard, CRUD for glucose records, visual classification, temporal filters, automatic insights, a basic evolution chart, centralized validation, reusable dashboard components and initial PWA support.
+The project already includes authentication, protected dashboard, CRUD for glucose records, visual classification, temporal filters, automatic insights, a basic evolution chart, centralized validation, reusable dashboard components, a refined mobile-first interface and installable PWA support.
 
 ## Product Overview
 
@@ -60,6 +60,7 @@ This is not a "100% no-code" project. The application includes real code written
 ## Main Features
 
 - Public landing page with official Glix branding
+- Product-style landing hero built with HTML/CSS, avoiding generic external mockups
 - Email/password authentication with Supabase Auth
 - Protected dashboard
 - Create, edit and delete glucose records
@@ -80,7 +81,8 @@ This is not a "100% no-code" project. The application includes real code written
 - Evolution chart
 - Centralized validation
 - Mobile-first responsive UI
-- Initial PWA manifest
+- Improved contrast and readability for dashboard cards, filters, chart, history and forms
+- Installable PWA with manifest, public icons and mobile installation metadata
 
 ## Screenshots and Assets
 
@@ -97,6 +99,8 @@ Available assets include:
 - `glix-splash-screen.png`
 - `glix-landing-hero.png`
 - `glix-dashboard-preview.png`
+
+PWA icons are also available in `public/` for browser and mobile installation support.
 
 ## Architecture Summary
 
@@ -131,8 +135,33 @@ Current security practices:
 - public anon/publishable key only;
 - centralized input validation;
 - `.env.local` excluded from version control.
+- Supabase trigger/function hardening documented for `public.handle_new_user()`.
 
 See [SECURITY.md](./SECURITY.md) for more details.
+
+## Testing as a PWA
+
+To test the installable experience:
+
+1. Open the production app on a mobile browser:
+
+```text
+https://glix-one.vercel.app/
+```
+
+2. Use the browser install option:
+
+- Android/Chrome: menu -> Add to Home screen or Install app.
+- iOS/Safari: Share -> Add to Home Screen.
+
+3. Open Glix from the home screen and verify:
+
+- the app opens in a standalone mobile view;
+- the icon appears correctly;
+- the landing page and dashboard remain readable;
+- login, filters, chart, history and forms keep the same behavior as the browser version.
+
+Glix does not implement offline caching for private glucose data at this stage. This is intentional to avoid storing sensitive health-related data locally without a clearer privacy strategy.
 
 ## Running Locally
 
@@ -200,22 +229,25 @@ public/branding/           Official visual assets
 
 Short-term:
 
-- improve PWA installation experience;
 - add richer chart interactions;
-- polish mobile states and empty states;
 - improve user-facing error messages.
+- test the experience with real users;
+- add privacy policy and terms pages;
+- add production monitoring and error tracking;
+- connect a custom domain.
 
 Medium-term:
 
-- export CSV/PDF reports;
+- export CSV reports;
 - profile settings;
 - account deletion flow;
-- privacy policy page;
 - production analytics and monitoring.
+- Supabase Pro evaluation if the product advances beyond MVP/testing.
 
 Future premium ideas:
 
 - advanced reports;
+- PDF export;
 - longer history and exports;
 - reminders;
 - integrations with automation tools;

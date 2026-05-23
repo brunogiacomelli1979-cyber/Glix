@@ -7,8 +7,11 @@ This roadmap describes the current state of Glix and possible next steps. It is 
 The current MVP includes:
 
 - public landing page;
+- landing hero built with HTML/CSS to represent the product interface;
 - official visual identity;
+- integrated Glix branding across the app;
 - responsive mobile-first UI;
+- refined dashboard readability and contrast;
 - Supabase authentication;
 - protected dashboard;
 - Supabase database integration;
@@ -30,17 +33,21 @@ The current MVP includes:
 - evolution chart;
 - centralized validation;
 - reusable dashboard components;
-- initial PWA manifest;
+- installable basic PWA;
+- improved PWA manifest;
+- public PWA icons;
 - Vercel deploy;
-- GitHub version control.
+- GitHub version control;
+- professional project documentation.
 
 ## Short-Term Improvements
 
 Priorities for the next iteration:
 
-- improve PWA install experience;
-- add better mobile screenshots and icons;
-- polish loading and empty states;
+- test the experience with real users;
+- connect a custom domain;
+- add basic analytics;
+- add production monitoring and error tracking;
 - improve form feedback messages;
 - add privacy policy page;
 - add terms/disclaimer page;
@@ -52,7 +59,6 @@ Priorities for the next iteration:
 Product and technical improvements:
 
 - CSV export;
-- PDF report generation;
 - profile settings;
 - account deletion flow;
 - improved chart interactions;
@@ -60,6 +66,8 @@ Product and technical improvements:
 - generated Supabase TypeScript types;
 - accessibility audit;
 - deployment monitoring and error tracking.
+- Supabase Pro evaluation if the product advances beyond MVP/testing;
+- leaked password protection when available through a paid Supabase plan.
 
 ## Future Premium Features
 
@@ -67,6 +75,7 @@ Possible freemium/premium direction:
 
 - advanced reports;
 - full historical exports;
+- PDF report export;
 - reminders;
 - saved filters;
 - custom tags;

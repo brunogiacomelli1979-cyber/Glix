@@ -66,6 +66,8 @@ This changelog summarizes the main project milestones. Dates are approximate and
 - Added landing hero image.
 - Added dashboard preview asset.
 - Applied health tech visual direction across pages.
+- Replaced the landing hero image with a product-style HTML/CSS mockup.
+- Improved landing page readability and reduced the generic marketing feel.
 
 ### PWA Preparation
 
@@ -74,6 +76,9 @@ This changelog summarizes the main project milestones. Dates are approximate and
 - Added theme and background colors.
 - Added initial screenshots to manifest.
 - Prepared mobile installation metadata.
+- Improved PWA installability.
+- Created public PWA icons for browser and mobile installation.
+- Added icon metadata for installable mobile usage.
 
 ### Deployment
 
@@ -107,10 +112,16 @@ This changelog summarizes the main project milestones. Dates are approximate and
   - dates;
   - empty submissions.
 
+### UI/UX Refinement
+
+- Improved dashboard legibility for mobile and installed PWA usage.
+- Increased touch target comfort in filters, actions and form controls.
+- Improved contrast for secondary text in cards, chart, history and helper messages.
+- Refined the mobile-first dashboard experience while preserving the existing CRUD flow.
+
 ## Next Planned Milestones
 
 - Add automated tests for validation helpers.
-- Improve PWA install experience.
 - Add privacy policy and terms pages.
 - Add CSV/PDF export.
 - Add account deletion flow.
