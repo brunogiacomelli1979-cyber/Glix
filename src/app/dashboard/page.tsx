@@ -1,4 +1,5 @@
-import { Activity, CalendarClock, Pencil, Plus, Save, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { CalendarClock, Pencil, Plus, Save, Trash2 } from "lucide-react";
 
 import { logout } from "@/app/auth/actions";
 import {
@@ -51,6 +52,13 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+function formatShortDate(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+  }).format(new Date(value));
+}
+
 function formatDateTimeInput(value: string) {
   return new Date(value).toISOString().slice(0, 16);
 }
@@ -64,20 +72,20 @@ function getAverage(records: GlucoseRecord[]) {
   return Math.round(total / records.length);
 }
 
-function getStatus(value?: number) {
-  if (!value) {
-    return "Sem dados";
+function getMin(records: GlucoseRecord[]) {
+  if (records.length === 0) {
+    return null;
   }
 
-  if (value < 70) {
-    return "Abaixo do alvo";
+  return Math.min(...records.map((record) => record.value_mgdl));
+}
+
+function getMax(records: GlucoseRecord[]) {
+  if (records.length === 0) {
+    return null;
   }
 
-  if (value > 180) {
-    return "Acima do alvo";
-  }
-
-  return "Dentro da faixa";
+  return Math.max(...records.map((record) => record.value_mgdl));
 }
 
 function getChartData(records: GlucoseRecord[]) {
@@ -91,7 +99,7 @@ function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
 
   if (chartRecords.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-300 text-center text-sm text-slate-500">
+      <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-[#b8dce8] bg-[#f8fbfc] px-4 text-center text-sm text-[#607585]">
         O gráfico aparece depois do primeiro registro.
       </div>
     );
@@ -118,10 +126,7 @@ function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
       ...record,
       x,
       y,
-      label: new Intl.DateTimeFormat("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-      }).format(new Date(record.recorded_at)),
+      label: formatShortDate(record.recorded_at),
     };
   });
 
@@ -146,9 +151,9 @@ function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
                 x2={width - padding.right}
                 y1={y}
                 y2={y}
-                stroke="#e2e8f0"
+                stroke="#d8edf4"
               />
-              <text x={10} y={y + 4} className="fill-slate-500 text-xs">
+              <text x={10} y={y + 4} className="fill-[#607585] text-xs">
                 {tick} mg/dL
               </text>
             </g>
@@ -160,24 +165,24 @@ function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
           x2={padding.left}
           y1={padding.top}
           y2={height - padding.bottom}
-          stroke="#94a3b8"
+          stroke="#94b8c5"
         />
         <line
           x1={padding.left}
           x2={width - padding.right}
           y1={height - padding.bottom}
           y2={height - padding.bottom}
-          stroke="#94a3b8"
+          stroke="#94b8c5"
         />
 
         {points.length > 1 && (
-          <polyline fill="none" stroke="#059669" strokeWidth="3" points={linePath} />
+          <polyline fill="none" stroke="#0f6f8f" strokeWidth="3" points={linePath} />
         )}
 
         {points.map((point, index) => (
           <g key={point.id}>
-            <circle cx={point.x} cy={point.y} r="5" className="fill-emerald-600" />
-            <text x={point.x} y={point.y - 10} textAnchor="middle" className="fill-slate-700 text-xs">
+            <circle cx={point.x} cy={point.y} r="5" className="fill-[#0f6f8f]" />
+            <text x={point.x} y={point.y - 10} textAnchor="middle" className="fill-[#082f49] text-xs">
               {point.value_mgdl}
             </text>
             {(index === 0 || index === points.length - 1 || points.length <= 6) && (
@@ -185,7 +190,7 @@ function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
                 x={point.x}
                 y={height - 18}
                 textAnchor="middle"
-                className="fill-slate-500 text-xs"
+                className="fill-[#607585] text-xs"
               >
                 {point.label}
               </text>
@@ -223,27 +228,63 @@ export default async function DashboardPage({
   const { data, error } = await query;
   const records = (data ?? []) as GlucoseRecord[];
   const average = getAverage(records);
+  const minValue = getMin(records);
+  const maxValue = getMax(records);
   const latest = records[0];
   const highCount = records.filter((record) => record.value_mgdl > 180).length;
+  const summaryCards = [
+    {
+      label: "Última medição",
+      value: latest ? `${latest.value_mgdl} mg/dL` : "--",
+      detail: latest ? formatDate(latest.recorded_at) : "Sem registros",
+    },
+    {
+      label: "Média dos registros",
+      value: average ? `${average} mg/dL` : "--",
+      detail: "Com o filtro atual",
+    },
+    {
+      label: "Menor valor",
+      value: minValue ? `${minValue} mg/dL` : "--",
+      detail: "No período exibido",
+    },
+    {
+      label: "Maior valor",
+      value: maxValue ? `${maxValue} mg/dL` : "--",
+      detail: "No período exibido",
+    },
+    {
+      label: "Total de registros",
+      value: records.length.toString(),
+      detail: "Últimos registros",
+    },
+  ];
 
   return (
-    <main className="min-h-screen bg-[#f6faf8] text-slate-950">
+    <main className="min-h-screen bg-[linear-gradient(180deg,#eefaff_0%,#f8fbfc_42%,#ffffff_100%)] text-[#082f49]">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:gap-6 sm:px-8 sm:py-6">
-        <header className="flex flex-col gap-4 border-b border-slate-200 pb-5 md:flex-row md:items-center md:justify-between">
+        <header className="flex flex-col gap-4 border-b border-[#d8edf4] pb-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="flex items-center gap-2 text-emerald-700">
-              <Activity className="size-5" />
-              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Glix</span>
+            <div className="flex items-center gap-3">
+              <Image
+                src="/branding/glix-logo-main.png"
+                alt="Glix"
+                width={44}
+                height={44}
+                className="size-11 rounded-xl object-contain"
+                priority
+              />
+              <span className="text-sm font-semibold uppercase text-[#0f7897]">Glix</span>
             </div>
-            <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight text-[#062338] sm:text-3xl">
               Painel de glicemia
             </h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Conta conectada: <span className="font-medium text-slate-900">{user?.email}</span>
+            <p className="mt-1 text-sm text-[#607585]">
+              Conta conectada: <span className="font-medium text-[#0f4864]">{user?.email}</span>
             </p>
           </div>
           <form action={logout}>
-            <Button variant="outline" type="submit">
+            <Button variant="outline" type="submit" className="border-[#b8dce8] bg-white/70 text-[#0f4864]">
               Sair
             </Button>
           </form>
@@ -253,43 +294,30 @@ export default async function DashboardPage({
           <div
             className={`rounded-lg border px-4 py-3 text-sm ${
               params.success
-                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                : "border-red-200 bg-red-50 text-red-800"
+                ? "border-[#c7edf3] bg-[#eefaff] text-[#0f6f8f]"
+                : "border-rose-100 bg-rose-50 text-rose-700"
             }`}
           >
             {params.success ?? params.error ?? error?.message}
           </div>
         )}
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <Card className="rounded-lg">
-            <CardHeader>
-              <CardDescription>Média dos registros filtrados</CardDescription>
-              <CardTitle className="text-2xl sm:text-3xl">
-                {average ? `${average} mg/dL` : "--"}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card className="rounded-lg">
-            <CardHeader>
-              <CardDescription>Último registro</CardDescription>
-              <CardTitle className="text-2xl sm:text-3xl">
-                {latest ? `${latest.value_mgdl} mg/dL` : "--"}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card className="rounded-lg">
-            <CardHeader>
-              <CardDescription>Status recente</CardDescription>
-              <CardTitle className="text-2xl sm:text-3xl">{getStatus(latest?.value_mgdl)}</CardTitle>
-            </CardHeader>
-          </Card>
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {summaryCards.map((card) => (
+            <Card key={card.label} className="rounded-xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
+              <CardHeader>
+                <CardDescription className="text-[#607585]">{card.label}</CardDescription>
+                <CardTitle className="text-2xl text-[#062338]">{card.value}</CardTitle>
+                <p className="text-xs text-[#7b8d98]">{card.detail}</p>
+              </CardHeader>
+            </Card>
+          ))}
         </section>
 
-        <Card className="rounded-lg">
+        <Card className="rounded-xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
           <CardHeader>
-            <CardTitle>Evolução da glicemia</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-[#062338]">Evolução da glicemia</CardTitle>
+            <CardDescription className="text-[#607585]">
               Registros exibidos em ordem cronológica, com valores em mg/dL.
             </CardDescription>
           </CardHeader>
@@ -299,10 +327,12 @@ export default async function DashboardPage({
         </Card>
 
         <section className="grid gap-6 lg:grid-cols-[380px_1fr]">
-          <Card className="rounded-lg">
+          <Card className="rounded-xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
             <CardHeader>
-              <CardTitle>Novo registro</CardTitle>
-              <CardDescription>Registre o valor medido e o contexto do momento.</CardDescription>
+              <CardTitle className="text-[#062338]">Novo registro</CardTitle>
+              <CardDescription className="text-[#607585]">
+                Registre o valor medido e o contexto do momento.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form action={createGlucoseRecord} className="space-y-4">
@@ -315,6 +345,7 @@ export default async function DashboardPage({
                     min="1"
                     max="1499"
                     placeholder="Ex.: 112"
+                    className="h-10 border-[#cfe5ed] bg-white"
                     required
                   />
                 </div>
@@ -324,7 +355,7 @@ export default async function DashboardPage({
                     id="context"
                     name="context"
                     required
-                    className="h-9 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                    className="h-10 w-full rounded-lg border border-[#cfe5ed] bg-white px-2.5 text-sm outline-none focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
                     defaultValue="jejum"
                   >
                     {contexts.map(([value, label]) => (
@@ -336,7 +367,12 @@ export default async function DashboardPage({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="recorded_at">Data e horário</Label>
-                  <Input id="recorded_at" name="recorded_at" type="datetime-local" />
+                  <Input
+                    id="recorded_at"
+                    name="recorded_at"
+                    type="datetime-local"
+                    className="h-10 border-[#cfe5ed] bg-white"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="notes">Observações</Label>
@@ -345,10 +381,10 @@ export default async function DashboardPage({
                     name="notes"
                     rows={4}
                     placeholder="Ex.: caminhada depois do almoço"
-                    className="w-full resize-none rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                    className="w-full resize-none rounded-lg border border-[#cfe5ed] bg-white px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
                   />
                 </div>
-                <Button type="submit" size="lg" className="h-11 w-full">
+                <Button type="submit" size="lg" className="h-11 w-full bg-[#0f6f8f] text-white hover:bg-[#0b5f7b]">
                   <Plus className="size-4" />
                   Salvar registro
                 </Button>
@@ -356,12 +392,12 @@ export default async function DashboardPage({
             </CardContent>
           </Card>
 
-          <Card className="rounded-lg">
+          <Card className="rounded-xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
             <CardHeader>
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <CardTitle>Histórico</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-[#062338]">Histórico</CardTitle>
+                  <CardDescription className="text-[#607585]">
                     Últimos {records.length} registros. {highCount} acima de 180 mg/dL.
                   </CardDescription>
                 </div>
@@ -369,7 +405,7 @@ export default async function DashboardPage({
                   <select
                     name="context"
                     defaultValue={selectedContext}
-                    className="h-9 flex-1 rounded-lg border border-input bg-transparent px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:flex-none"
+                    className="h-9 flex-1 rounded-lg border border-[#cfe5ed] bg-white px-2 text-sm outline-none focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30 md:flex-none"
                   >
                     <option value="todos">Todos</option>
                     {contexts.map(([value, label]) => (
@@ -378,7 +414,7 @@ export default async function DashboardPage({
                       </option>
                     ))}
                   </select>
-                  <Button type="submit" variant="outline" className="h-9">
+                  <Button type="submit" variant="outline" className="h-9 border-[#b8dce8] text-[#0f4864]">
                     Filtrar
                   </Button>
                 </form>
@@ -386,42 +422,42 @@ export default async function DashboardPage({
             </CardHeader>
             <CardContent>
               {records.length === 0 ? (
-                <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center">
-                  <CalendarClock className="mb-3 size-8 text-slate-400" />
-                  <p className="font-medium">Nenhum registro encontrado</p>
-                  <p className="mt-1 text-sm text-slate-500">
+                <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-[#b8dce8] bg-[#f8fbfc] text-center">
+                  <CalendarClock className="mb-3 size-8 text-[#8cb7c5]" />
+                  <p className="font-medium text-[#082f49]">Nenhum registro encontrado</p>
+                  <p className="mt-1 text-sm text-[#607585]">
                     Salve sua primeira medição para montar o histórico.
                   </p>
                 </div>
               ) : (
-                <div className="overflow-hidden rounded-xl border border-slate-200">
-                  <div className="hidden gap-3 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 md:grid md:grid-cols-[140px_1fr_140px_auto]">
+                <div className="overflow-hidden rounded-xl border border-[#d8edf4] bg-white">
+                  <div className="hidden gap-3 bg-[#f3fbfd] px-4 py-3 text-xs font-semibold uppercase text-[#607585] md:grid md:grid-cols-[140px_1fr_140px_auto]">
                     <span>Valor</span>
                     <span>Contexto</span>
                     <span className="hidden md:block">Quando</span>
                     <span>Ações</span>
                   </div>
-                  <div className="divide-y divide-slate-200">
+                  <div className="divide-y divide-[#e3f1f5]">
                     {records.map((record) => (
                       <div
                         key={record.id}
                         className="grid grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 md:grid-cols-[140px_1fr_140px_auto]"
                       >
                         <div>
-                          <p className="font-semibold">{record.value_mgdl} mg/dL</p>
-                          <p className="text-xs text-slate-500 md:hidden">
+                          <p className="font-semibold text-[#062338]">{record.value_mgdl} mg/dL</p>
+                          <p className="text-xs text-[#607585] md:hidden">
                             {formatDate(record.recorded_at)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm">{contextLabels[record.context] ?? record.context}</p>
+                          <p className="text-sm text-[#082f49]">{contextLabels[record.context] ?? record.context}</p>
                           {record.notes && (
-                            <p className="mt-1 line-clamp-2 text-xs text-slate-500 md:line-clamp-1">
+                            <p className="mt-1 line-clamp-2 text-xs text-[#607585] md:line-clamp-1">
                               {record.notes}
                             </p>
                           )}
                         </div>
-                        <p className="hidden text-sm text-slate-600 md:block">
+                        <p className="hidden text-sm text-[#607585] md:block">
                           {formatDate(record.recorded_at)}
                         </p>
                         <form action={deleteGlucoseRecord}>
@@ -430,8 +466,8 @@ export default async function DashboardPage({
                             <Trash2 className="size-4" />
                           </Button>
                         </form>
-                        <details className="col-span-full rounded-lg bg-slate-50 px-3 py-2">
-                          <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-emerald-700">
+                        <details className="col-span-full rounded-lg bg-[#f8fbfc] px-3 py-2">
+                          <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-[#0f6f8f]">
                             <Pencil className="size-4" />
                             Editar registro
                           </summary>
@@ -446,6 +482,7 @@ export default async function DashboardPage({
                                 min="1"
                                 max="1499"
                                 defaultValue={record.value_mgdl}
+                                className="h-10 border-[#cfe5ed] bg-white"
                                 required
                               />
                             </div>
@@ -455,7 +492,7 @@ export default async function DashboardPage({
                                 id={`context-${record.id}`}
                                 name="context"
                                 required
-                                className="h-9 w-full rounded-lg border border-input bg-white px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                                className="h-10 w-full rounded-lg border border-[#cfe5ed] bg-white px-2.5 text-sm outline-none focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
                                 defaultValue={record.context}
                               >
                                 {contexts.map(([value, label]) => (
@@ -472,6 +509,7 @@ export default async function DashboardPage({
                                 name="recorded_at"
                                 type="datetime-local"
                                 defaultValue={formatDateTimeInput(record.recorded_at)}
+                                className="h-10 border-[#cfe5ed] bg-white"
                               />
                             </div>
                             <div className="space-y-2">
@@ -481,10 +519,10 @@ export default async function DashboardPage({
                                 name="notes"
                                 rows={3}
                                 defaultValue={record.notes ?? ""}
-                                className="w-full resize-none rounded-lg border border-input bg-white px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                                className="w-full resize-none rounded-lg border border-[#cfe5ed] bg-white px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
                               />
                             </div>
-                            <Button type="submit" className="md:col-span-2">
+                            <Button type="submit" className="bg-[#0f6f8f] text-white hover:bg-[#0b5f7b] md:col-span-2">
                               <Save className="size-4" />
                               Salvar alterações
                             </Button>
@@ -499,8 +537,8 @@ export default async function DashboardPage({
           </Card>
         </section>
 
-        <section className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          O Glix não realiza diagnóstico médico. Use os registros como apoio para acompanhar sua
+        <section className="rounded-xl border border-[#d8edf4] bg-white/80 px-4 py-3 text-sm text-[#607585]">
+          O Glix não realiza diagnóstico médico. Use os registros como apoio para organizar sua
           rotina e conversar com profissionais de saúde.
         </section>
       </div>

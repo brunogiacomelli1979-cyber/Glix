@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   applicationName: "Glix",
   title: "Glix",
-  description: "Diario simples e seguro para acompanhamento de glicemia.",
+  description: "Diário simples e seguro para acompanhamento pessoal de glicemia.",
   appleWebApp: {
     capable: true,
     title: "Glix",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#059669",
+  themeColor: "#0f6f8f",
 };
 
 export default function RootLayout({

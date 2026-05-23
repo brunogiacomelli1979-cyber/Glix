@@ -4,17 +4,17 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Glix",
     short_name: "Glix",
-    description: "Diario simples e seguro para acompanhamento de glicemia.",
+    description: "Diário simples e seguro para acompanhamento pessoal de glicemia.",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#f6faf8",
-    theme_color: "#059669",
+    background_color: "#eef8fb",
+    theme_color: "#0f6f8f",
     orientation: "portrait",
     icons: [
       {
-        src: "/favicon.ico",
-        sizes: "any",
-        type: "image/x-icon",
+        src: "/branding/glix-app-icon.png",
+        sizes: "1024x1024",
+        type: "image/png",
       },
     ],
   };
