@@ -3,15 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { parseGlucoseFormData } from "@/lib/glucose";
 import { createClient } from "@/utils/supabase/server";
 
-const validContexts = new Set([
-  "jejum",
-  "antes_refeicao",
-  "pos_refeicao",
-  "antes_dormir",
-  "outro",
-]);
+function dashboardError(message: string): never {
+  redirect(`/dashboard?error=${encodeURIComponent(message)}`);
+}
 
 export async function createGlucoseRecord(formData: FormData) {
   const supabase = await createClient();
@@ -23,29 +20,21 @@ export async function createGlucoseRecord(formData: FormData) {
     redirect("/login");
   }
 
-  const value = Number(formData.get("value_mgdl"));
-  const context = String(formData.get("context") ?? "");
-  const recordedAt = String(formData.get("recorded_at") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim();
+  const parsed = parseGlucoseFormData(formData);
 
-  if (!Number.isInteger(value) || value <= 0 || value >= 1500) {
-    redirect("/dashboard?error=Informe um valor de glicemia válido.");
+  if (!parsed.data) {
+    dashboardError(parsed.error ?? "Não foi possível salvar o registro.");
   }
 
-  if (!validContexts.has(context)) {
-    redirect("/dashboard?error=Selecione um contexto válido.");
-  }
+  const recordData = parsed.data;
 
   const { error } = await supabase.from("glucose_records").insert({
     user_id: user.id,
-    value_mgdl: value,
-    context,
-    recorded_at: recordedAt ? new Date(recordedAt).toISOString() : new Date().toISOString(),
-    notes: notes || null,
+    ...recordData,
   });
 
   if (error) {
-    redirect(`/dashboard?error=${encodeURIComponent(error.message)}`);
+    dashboardError(error.message);
   }
 
   revalidatePath("/dashboard");
@@ -63,36 +52,27 @@ export async function updateGlucoseRecord(formData: FormData) {
   }
 
   const id = String(formData.get("id") ?? "");
-  const value = Number(formData.get("value_mgdl"));
-  const context = String(formData.get("context") ?? "");
-  const recordedAt = String(formData.get("recorded_at") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim();
 
   if (!id) {
-    redirect("/dashboard?error=Registro não encontrado.");
+    dashboardError("Registro não encontrado.");
   }
 
-  if (!Number.isInteger(value) || value <= 0 || value >= 1500) {
-    redirect("/dashboard?error=Informe um valor de glicemia válido.");
+  const parsed = parseGlucoseFormData(formData);
+
+  if (!parsed.data) {
+    dashboardError(parsed.error ?? "Não foi possível atualizar o registro.");
   }
 
-  if (!validContexts.has(context)) {
-    redirect("/dashboard?error=Selecione um contexto válido.");
-  }
+  const recordData = parsed.data;
 
   const { error } = await supabase
     .from("glucose_records")
-    .update({
-      value_mgdl: value,
-      context,
-      recorded_at: recordedAt ? new Date(recordedAt).toISOString() : new Date().toISOString(),
-      notes: notes || null,
-    })
+    .update(recordData)
     .eq("id", id)
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(`/dashboard?error=${encodeURIComponent(error.message)}`);
+    dashboardError(error.message);
   }
 
   revalidatePath("/dashboard");
@@ -112,7 +92,7 @@ export async function deleteGlucoseRecord(formData: FormData) {
   const id = String(formData.get("id") ?? "");
 
   if (!id) {
-    redirect("/dashboard?error=Registro não encontrado.");
+    dashboardError("Registro não encontrado.");
   }
 
   const { error } = await supabase
@@ -122,7 +102,7 @@ export async function deleteGlucoseRecord(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(`/dashboard?error=${encodeURIComponent(error.message)}`);
+    dashboardError(error.message);
   }
 
   revalidatePath("/dashboard");
