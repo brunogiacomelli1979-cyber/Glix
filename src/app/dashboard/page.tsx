@@ -58,7 +58,7 @@ export default async function DashboardPage({
 
         {(params.error || params.success || error) && (
           <div
-            className={`rounded-2xl border px-4 py-3 text-sm ${
+            className={`rounded-2xl border px-4 py-3 text-base leading-7 ${
               params.success
                 ? "border-[#c7edf3] bg-[#eefaff] text-[#0f6f8f]"
                 : "border-rose-100 bg-rose-50 text-rose-700"
@@ -77,7 +77,7 @@ export default async function DashboardPage({
           <HistoryList highCount={highCount} records={records} />
         </section>
 
-        <section className="rounded-2xl border border-[#d8edf4] bg-white/80 px-4 py-3 text-sm leading-6 text-[#607585]">
+        <section className="rounded-2xl border border-[#d8edf4] bg-white/80 px-4 py-3 text-sm leading-6 text-[#405968]">
           O Glix não realiza diagnóstico médico. Use os registros como apoio para organizar sua
           rotina e conversar com profissionais de saúde.
         </section>

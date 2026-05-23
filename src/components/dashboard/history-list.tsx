@@ -29,7 +29,7 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
       <CardHeader>
         <div>
           <CardTitle className="text-[#062338]">Histórico</CardTitle>
-          <CardDescription className="text-[#607585]">
+          <CardDescription className="text-sm leading-6 text-[#405968]">
             {records.length} registros no filtro atual. {highCount} acima de 180 mg/dL.
           </CardDescription>
         </div>
@@ -39,13 +39,13 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
           <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[#b8dce8] bg-[#f8fbfc] px-4 text-center">
             <CalendarClock className="mb-3 size-8 text-[#8cb7c5]" />
             <p className="font-medium text-[#082f49]">Nenhum registro encontrado</p>
-            <p className="mt-1 text-sm text-[#607585]">
+            <p className="mt-1 text-base leading-7 text-[#405968]">
               Ajuste os filtros ou salve uma nova medição.
             </p>
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="hidden rounded-xl bg-[#f3fbfd] px-4 py-3 text-xs font-semibold uppercase text-[#607585] md:grid md:grid-cols-[140px_1fr_140px_auto] md:gap-3">
+            <div className="hidden rounded-xl bg-[#f3fbfd] px-4 py-3 text-[0.8rem] font-semibold uppercase text-[#405968] md:grid md:grid-cols-[140px_1fr_140px_auto] md:gap-3">
               <span>Valor</span>
               <span>Contexto</span>
               <span>Quando</span>
@@ -62,13 +62,13 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                     <div className="mt-2 md:hidden">
                       <StatusBadge value={record.value_mgdl} />
                     </div>
-                    <p className="mt-1 text-xs text-[#607585] md:hidden">
+                    <p className="mt-1 text-sm text-[#405968] md:hidden">
                       {formatDate(record.recorded_at)}
                     </p>
                   </div>
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-medium text-[#082f49]">
+                      <p className="text-base font-medium text-[#082f49] md:text-sm">
                         {contexts.find(([value]) => value === record.context)?.[1] ?? record.context}
                       </p>
                       <span className="hidden md:inline-flex">
@@ -76,12 +76,12 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                       </span>
                     </div>
                     {record.notes && (
-                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#607585] md:line-clamp-1">
+                      <p className="mt-1 line-clamp-2 text-sm leading-6 text-[#405968] md:line-clamp-1">
                         {record.notes}
                       </p>
                     )}
                   </div>
-                  <p className="hidden text-sm text-[#607585] md:block">
+                  <p className="hidden text-sm text-[#405968] md:block">
                     {formatDate(record.recorded_at)}
                   </p>
                   <form action={deleteGlucoseRecord}>
@@ -91,14 +91,14 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                       variant="ghost"
                       size="icon"
                       aria-label="Remover registro"
-                      className="size-10 text-[#607585] hover:bg-rose-50 hover:text-rose-700"
+                      className="size-11 text-[#405968] hover:bg-rose-50 hover:text-rose-700"
                     >
                       <Trash2 className="size-4" />
                     </Button>
                   </form>
                 </div>
                 <details className="mt-3 rounded-xl bg-[#f8fbfc] px-3 py-2">
-                  <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 text-sm font-medium text-[#0f6f8f]">
+                  <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-base font-medium text-[#0f6f8f] md:text-sm">
                     <Pencil className="size-4" />
                     Editar registro
                   </summary>
@@ -113,7 +113,7 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                         min={GLUCOSE_MIN_VALUE}
                         max={GLUCOSE_MAX_VALUE}
                         defaultValue={record.value_mgdl}
-                        className="h-10 border-[#cfe5ed] bg-white"
+                        className="h-11 border-[#cfe5ed] bg-white text-base"
                         required
                       />
                     </div>
@@ -123,7 +123,7 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                         id={`context-${record.id}`}
                         name="context"
                         required
-                        className="h-10 w-full rounded-lg border border-[#cfe5ed] bg-white px-2.5 text-sm outline-none transition focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
+                        className="h-11 w-full rounded-lg border border-[#cfe5ed] bg-white px-2.5 text-base outline-none transition focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
                         defaultValue={record.context}
                       >
                         {contexts.map(([value, label]) => (
@@ -140,7 +140,7 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                         name="recorded_at"
                         type="datetime-local"
                         defaultValue={formatDateTimeInput(record.recorded_at)}
-                        className="h-10 border-[#cfe5ed] bg-white"
+                        className="h-11 border-[#cfe5ed] bg-white text-base"
                       />
                     </div>
                     <div className="space-y-2">
@@ -151,7 +151,7 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                         rows={3}
                         maxLength={NOTES_MAX_LENGTH}
                         defaultValue={record.notes ?? ""}
-                        className="w-full resize-none rounded-lg border border-[#cfe5ed] bg-white px-2.5 py-2 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
+                        className="w-full resize-none rounded-lg border border-[#cfe5ed] bg-white px-2.5 py-2 text-base outline-none transition placeholder:text-muted-foreground focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
                       />
                     </div>
                     <SubmitButton pendingText="Salvando alterações..." className="md:col-span-2">

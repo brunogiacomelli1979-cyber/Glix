@@ -19,7 +19,7 @@ export function SummaryCards({ cards }: SummaryCardsProps) {
         >
           <CardHeader className="gap-2">
             <div className="flex items-start justify-between gap-2">
-              <CardDescription className={card.featured ? "text-white/75" : "text-[#607585]"}>
+              <CardDescription className={card.featured ? "text-sm text-white/85" : "text-sm text-[#405968]"}>
                 {card.label}
               </CardDescription>
               {!card.featured && <StatusBadge value={card.statusValue} />}
@@ -29,7 +29,7 @@ export function SummaryCards({ cards }: SummaryCardsProps) {
               {card.unit && <span className="ml-1 text-sm font-medium opacity-80">{card.unit}</span>}
             </CardTitle>
             <div className="flex flex-wrap items-center gap-2">
-              <p className={card.featured ? "text-xs text-white/75" : "text-xs text-[#7b8d98]"}>
+              <p className={card.featured ? "text-sm text-white/85" : "text-sm text-[#516b7a]"}>
                 {card.detail}
               </p>
               {card.featured && <StatusBadge value={card.statusValue} />}

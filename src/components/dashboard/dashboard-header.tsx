@@ -22,14 +22,14 @@ export function DashboardHeader({ email }: DashboardHeaderProps) {
               priority
             />
             <div>
-              <p className="text-xs font-semibold uppercase text-[#0f7897]">Glix</p>
+              <p className="text-sm font-semibold uppercase text-[#0f7897]">Glix</p>
               <h1 className="text-2xl font-semibold tracking-tight text-[#062338]">
                 Painel de glicemia
               </h1>
             </div>
           </div>
           {email && (
-            <p className="mt-3 truncate text-sm text-[#607585]">
+            <p className="mt-3 truncate text-[0.95rem] text-[#405968]">
               Conta conectada: <span className="font-medium text-[#0f4864]">{email}</span>
             </p>
           )}
@@ -38,7 +38,7 @@ export function DashboardHeader({ email }: DashboardHeaderProps) {
           <Button
             variant="outline"
             type="submit"
-            className="h-9 border-[#b8dce8] bg-white/70 text-[#0f4864]"
+            className="h-10 border-[#b8dce8] bg-white/70 px-4 text-[#0f4864]"
           >
             Sair
           </Button>

@@ -13,7 +13,7 @@ export function MeasurementForm() {
     <Card className="rounded-3xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
       <CardHeader>
         <CardTitle className="text-[#062338]">Nova medição</CardTitle>
-        <CardDescription className="text-[#607585]">
+        <CardDescription className="text-sm leading-6 text-[#405968]">
           Adicione um registro ao seu diário.
         </CardDescription>
       </CardHeader>

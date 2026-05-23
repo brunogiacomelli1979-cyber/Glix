@@ -23,6 +23,16 @@ const features = [
   },
 ];
 
+const previewBars = [
+  { label: "Seg", value: 42 },
+  { label: "Ter", value: 58 },
+  { label: "Qua", value: 48 },
+  { label: "Qui", value: 72 },
+  { label: "Sex", value: 64 },
+  { label: "Sab", value: 82 },
+  { label: "Hoje", value: 54 },
+];
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#effaff_0%,#f8fbfc_48%,#ffffff_100%)] text-[#082f49]">
@@ -43,7 +53,7 @@ export default function Home() {
               href="/login"
               className={cn(
                 buttonVariants({ variant: "ghost" }),
-                "text-[#0f4864] hover:bg-white/70"
+                "min-h-11 text-[#0f4864] hover:bg-white/70"
               )}
             >
               Entrar
@@ -52,7 +62,7 @@ export default function Home() {
               href="/register"
               className={cn(
                 buttonVariants(),
-                "bg-[#0f6f8f] text-white shadow-sm shadow-sky-900/10 hover:bg-[#0b5f7b]"
+                "min-h-11 bg-[#0f6f8f] text-white shadow-sm shadow-sky-900/10 hover:bg-[#0b5f7b]"
               )}
             >
               Começar
@@ -77,7 +87,7 @@ export default function Home() {
                 href="/register"
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "h-11 bg-[#0f6f8f] px-5 text-white shadow-lg shadow-sky-900/10 hover:bg-[#0b5f7b]"
+                  "h-12 bg-[#0f6f8f] px-5 text-white shadow-lg shadow-sky-900/10 hover:bg-[#0b5f7b]"
                 )}
               >
                 Criar minha conta
@@ -86,28 +96,76 @@ export default function Home() {
                 href="/login"
                 className={cn(
                   buttonVariants({ size: "lg", variant: "outline" }),
-                  "h-11 border-[#b8dce8] bg-white/70 px-5 text-[#0f4864] hover:bg-white"
+                  "h-12 border-[#b8dce8] bg-white/70 px-5 text-[#0f4864] hover:bg-white"
                 )}
               >
                 Já tenho conta
               </Link>
             </div>
-            <p className="mt-5 text-sm text-[#6d7f8c]">
+            <p className="mt-5 text-base leading-7 text-[#516b7a]">
               O Glix não substitui orientação médica.
             </p>
           </div>
 
           <div className="relative">
             <div className="absolute inset-8 rounded-[2rem] bg-[#8fd7e8]/30 blur-3xl" />
-            <div className="relative overflow-hidden rounded-[1.75rem] border border-white bg-white shadow-2xl shadow-sky-950/10">
-              <Image
-                src="/branding/glix-landing-hero.png"
-                alt="Interface visual do Glix"
-                width={960}
-                height={540}
-                className="h-auto w-full object-cover"
-                priority
-              />
+            <div className="relative overflow-hidden rounded-[1.75rem] border border-white bg-white p-4 shadow-2xl shadow-sky-950/10 sm:p-6">
+              <div className="rounded-[1.35rem] border border-[#d8edf4] bg-[linear-gradient(180deg,#f8fdff_0%,#ffffff_100%)] p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold uppercase text-[#0f7897]">Resumo de hoje</p>
+                    <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#062338]">
+                      112 mg/dL
+                    </h2>
+                    <p className="mt-1 text-base text-[#405968]">Última medição registrada</p>
+                  </div>
+                  <span className="rounded-full border border-[#b8dce8] bg-[#eefaff] px-3 py-1 text-sm font-medium text-[#0f4864]">
+                    Organizado
+                  </span>
+                </div>
+
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-[#d8edf4] bg-white p-4 shadow-sm shadow-sky-950/5">
+                    <p className="text-sm text-[#516b7a]">Média</p>
+                    <p className="mt-2 text-xl font-semibold text-[#062338]">118 mg/dL</p>
+                  </div>
+                  <div className="rounded-2xl border border-[#d8edf4] bg-white p-4 shadow-sm shadow-sky-950/5">
+                    <p className="text-sm text-[#516b7a]">Registros</p>
+                    <p className="mt-2 text-xl font-semibold text-[#062338]">12</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-[#d8edf4] bg-white p-4 shadow-sm shadow-sky-950/5">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-medium text-[#062338]">Evolução semanal</p>
+                    <p className="text-sm text-[#516b7a]">mg/dL</p>
+                  </div>
+                  <div className="mt-5 flex h-36 items-end gap-2" aria-label="Prévia visual do gráfico de glicemia">
+                    {previewBars.map((bar) => (
+                      <div key={bar.label} className="flex flex-1 flex-col items-center gap-2">
+                        <div
+                          className="w-full rounded-t-xl bg-[linear-gradient(180deg,#0f9fba_0%,#b8e8f1_100%)]"
+                          style={{ height: `${bar.value}%` }}
+                        />
+                        <span className="text-[0.8rem] font-medium text-[#516b7a]">{bar.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-[#d8edf4] bg-[#f8fbfc] p-4">
+                  <p className="text-sm font-medium text-[#516b7a]">Registro recente</p>
+                  <div className="mt-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-[#062338]">Antes de dormir</p>
+                      <p className="mt-1 text-sm text-[#516b7a]">Hoje, 21:15</p>
+                    </div>
+                    <span className="rounded-full border border-[#c7edf3] bg-white px-3 py-1.5 text-sm font-semibold text-[#0f6f8f]">
+                      110 mg/dL
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -120,7 +178,7 @@ export default function Home() {
             >
               <feature.icon className="mb-4 size-5 text-[#0f7897]" />
               <h2 className="font-semibold text-[#082f49]">{feature.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-[#5f7481]">{feature.text}</p>
+              <p className="mt-2 text-[0.95rem] leading-7 text-[#405968]">{feature.text}</p>
             </div>
           ))}
         </section>

@@ -38,7 +38,7 @@ function ChartCanvas({ records }: GlucoseChartProps) {
 
   if (chartRecords.length === 0) {
     return (
-      <div className="flex h-56 items-center justify-center rounded-2xl border border-dashed border-[#b8dce8] bg-[#f8fbfc] px-4 text-center text-sm text-[#607585]">
+      <div className="flex h-56 items-center justify-center rounded-2xl border border-dashed border-[#b8dce8] bg-[#f8fbfc] px-4 text-center text-base leading-7 text-[#405968]">
         O gráfico aparece depois do primeiro registro.
       </div>
     );
@@ -120,7 +120,7 @@ function ChartCanvas({ records }: GlucoseChartProps) {
                 y2={y}
                 stroke="#d8edf4"
               />
-              <text x={10} y={y + 4} className="fill-[#607585] text-xs">
+              <text x={10} y={y + 4} className="fill-[#405968] text-[0.8rem]">
                 {tick} mg/dL
               </text>
             </g>
@@ -164,7 +164,7 @@ function ChartCanvas({ records }: GlucoseChartProps) {
                 />
               )}
               <circle cx={point.x} cy={point.y} r="5" fill={point.status.chart} />
-              <text x={point.x} y={point.y - 12} textAnchor="middle" className="fill-[#082f49] text-xs">
+              <text x={point.x} y={point.y - 12} textAnchor="middle" className="fill-[#082f49] text-[0.8rem]">
                 {point.value_mgdl}
               </text>
               {(index === 0 || index === points.length - 1 || points.length <= 6) && (
@@ -172,7 +172,7 @@ function ChartCanvas({ records }: GlucoseChartProps) {
                   x={point.x}
                   y={height - 18}
                   textAnchor="middle"
-                  className="fill-[#607585] text-xs"
+                  className="fill-[#405968] text-[0.8rem]"
                 >
                   {point.label}
                 </text>
@@ -190,7 +190,7 @@ export function GlucoseChart({ records }: GlucoseChartProps) {
     <Card className="rounded-3xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
       <CardHeader>
         <CardTitle className="text-[#062338]">Evolução da glicemia</CardTitle>
-        <CardDescription className="text-[#607585]">
+        <CardDescription className="text-sm leading-6 text-[#405968]">
           Pontos coloridos por faixa, com destaque para picos do período.
         </CardDescription>
       </CardHeader>
