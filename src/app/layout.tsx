@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     capable: true,
     title: "Glix",
     statusBarStyle: "default",
+    startupImage: "/branding/glix-splash-screen.png",
   },
   formatDetection: {
     telephone: false,
