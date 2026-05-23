@@ -19,10 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/utils/supabase/server";
 
+type PeriodFilter = "today" | "7d" | "30d" | "90d";
+
 type DashboardSearchParams = Promise<{
   error?: string;
   success?: string;
   context?: string;
+  period?: PeriodFilter;
 }>;
 
 type GlucoseRecord = {
@@ -41,7 +44,15 @@ const contextLabels: Record<string, string> = {
   outro: "Outro",
 };
 
+const periodLabels: Record<PeriodFilter, string> = {
+  today: "Hoje",
+  "7d": "7 dias",
+  "30d": "30 dias",
+  "90d": "90 dias",
+};
+
 const contexts = Object.entries(contextLabels);
+const periods = Object.entries(periodLabels) as [PeriodFilter, string][];
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -61,6 +72,19 @@ function formatShortDate(value: string) {
 
 function formatDateTimeInput(value: string) {
   return new Date(value).toISOString().slice(0, 16);
+}
+
+function getPeriodStart(period: PeriodFilter) {
+  const date = new Date();
+
+  if (period === "today") {
+    date.setHours(0, 0, 0, 0);
+    return date.toISOString();
+  }
+
+  const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
+  date.setDate(date.getDate() - days);
+  return date.toISOString();
 }
 
 function getAverage(records: GlucoseRecord[]) {
@@ -88,10 +112,91 @@ function getMax(records: GlucoseRecord[]) {
   return Math.max(...records.map((record) => record.value_mgdl));
 }
 
+function getGlucoseStatus(value?: number | null) {
+  if (!value) {
+    return {
+      label: "Sem dados",
+      description: "Aguardando registros",
+      chip: "border-[#d8edf4] bg-white text-[#607585]",
+      dot: "bg-[#94b8c5]",
+      chart: "#94b8c5",
+    };
+  }
+
+  if (value < 70) {
+    return {
+      label: "Baixa",
+      description: "Abaixo de 70 mg/dL",
+      chip: "border-sky-100 bg-sky-50 text-sky-700",
+      dot: "bg-sky-500",
+      chart: "#0ea5e9",
+    };
+  }
+
+  if (value <= 140) {
+    return {
+      label: "Normal",
+      description: "70 a 140 mg/dL",
+      chip: "border-[#c7edf3] bg-[#eefaff] text-[#0f6f8f]",
+      dot: "bg-[#0f6f8f]",
+      chart: "#0f6f8f",
+    };
+  }
+
+  if (value <= 180) {
+    return {
+      label: "Atenção",
+      description: "141 a 180 mg/dL",
+      chip: "border-amber-100 bg-amber-50 text-amber-700",
+      dot: "bg-amber-500",
+      chart: "#f59e0b",
+    };
+  }
+
+  return {
+    label: "Alta",
+    description: "Acima de 180 mg/dL",
+    chip: "border-rose-100 bg-rose-50 text-rose-700",
+    dot: "bg-rose-500",
+    chart: "#e11d48",
+  };
+}
+
+function StatusBadge({ value }: { value?: number | null }) {
+  const status = getGlucoseStatus(value);
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${status.chip}`}>
+      <span className={`size-1.5 rounded-full ${status.dot}`} />
+      {status.label}
+    </span>
+  );
+}
+
 function getChartData(records: GlucoseRecord[]) {
   return [...records].sort(
     (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
   );
+}
+
+function getSmoothPath(points: { x: number; y: number }[]) {
+  if (points.length === 0) {
+    return "";
+  }
+
+  if (points.length === 1) {
+    return `M ${points[0].x} ${points[0].y}`;
+  }
+
+  return points.reduce((path, point, index) => {
+    if (index === 0) {
+      return `M ${point.x} ${point.y}`;
+    }
+
+    const previous = points[index - 1];
+    const controlX = (previous.x + point.x) / 2;
+    return `${path} C ${controlX} ${previous.y}, ${controlX} ${point.y}, ${point.x} ${point.y}`;
+  }, "");
 }
 
 function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
@@ -105,33 +210,46 @@ function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
     );
   }
 
-  const width = 680;
-  const height = 248;
-  const padding = { top: 22, right: 20, bottom: 44, left: 58 };
+  const width = 700;
+  const height = 272;
+  const padding = { top: 24, right: 22, bottom: 48, left: 60 };
   const values = chartRecords.map((record) => record.value_mgdl);
-  const minValue = Math.max(0, Math.min(...values) - 20);
-  const maxValue = Math.max(...values) + 20;
+  const minValue = Math.max(0, Math.min(...values, 70) - 20);
+  const maxValue = Math.max(...values, 180) + 20;
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
   const valueRange = Math.max(1, maxValue - minValue);
+  const peak = Math.max(...values);
+
+  function getY(value: number) {
+    return padding.top + chartHeight - ((value - minValue) / valueRange) * chartHeight;
+  }
 
   const points = chartRecords.map((record, index) => {
     const x =
       padding.left +
       (chartRecords.length === 1 ? chartWidth / 2 : (index / (chartRecords.length - 1)) * chartWidth);
-    const y =
-      padding.top + chartHeight - ((record.value_mgdl - minValue) / valueRange) * chartHeight;
+    const y = getY(record.value_mgdl);
 
     return {
       ...record,
       x,
       y,
       label: formatShortDate(record.recorded_at),
+      status: getGlucoseStatus(record.value_mgdl),
     };
   });
 
-  const linePath = points.map((point) => `${point.x},${point.y}`).join(" ");
-  const yTicks = [minValue, Math.round((minValue + maxValue) / 2), maxValue];
+  const yTicks = [minValue, 70, 140, 180, maxValue].filter(
+    (tick, index, list) => list.indexOf(tick) === index && tick >= minValue && tick <= maxValue
+  );
+  const path = getSmoothPath(points);
+  const bands = [
+    { from: minValue, to: 70, color: "#eff8ff" },
+    { from: 70, to: 140, color: "#eefaff" },
+    { from: 140, to: 180, color: "#fffbeb" },
+    { from: 180, to: maxValue, color: "#fff1f2" },
+  ].filter((band) => band.to > minValue && band.from < maxValue);
 
   return (
     <div className="overflow-x-auto rounded-2xl bg-white">
@@ -139,10 +257,25 @@ function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
         viewBox={`0 0 ${width} ${height}`}
         role="img"
         aria-label="Gráfico de evolução da glicemia"
-        className="min-w-[540px]"
+        className="min-w-[560px]"
       >
+        {bands.map((band) => {
+          const yTop = getY(Math.min(band.to, maxValue));
+          const yBottom = getY(Math.max(band.from, minValue));
+          return (
+            <rect
+              key={`${band.from}-${band.to}`}
+              x={padding.left}
+              y={yTop}
+              width={chartWidth}
+              height={Math.max(0, yBottom - yTop)}
+              fill={band.color}
+            />
+          );
+        })}
+
         {yTicks.map((tick) => {
-          const y = padding.top + chartHeight - ((tick - minValue) / valueRange) * chartHeight;
+          const y = getY(tick);
 
           return (
             <g key={tick}>
@@ -175,31 +308,84 @@ function GlucoseChart({ records }: { records: GlucoseRecord[] }) {
           stroke="#94b8c5"
         />
 
-        {points.length > 1 && (
-          <polyline fill="none" stroke="#0f6f8f" strokeWidth="3" points={linePath} />
-        )}
+        {points.length > 1 && <path d={path} fill="none" stroke="#0f6f8f" strokeWidth="3" />}
 
-        {points.map((point, index) => (
-          <g key={point.id}>
-            <circle cx={point.x} cy={point.y} r="5" className="fill-[#0f6f8f]" />
-            <text x={point.x} y={point.y - 10} textAnchor="middle" className="fill-[#082f49] text-xs">
-              {point.value_mgdl}
-            </text>
-            {(index === 0 || index === points.length - 1 || points.length <= 6) && (
-              <text
-                x={point.x}
-                y={height - 18}
-                textAnchor="middle"
-                className="fill-[#607585] text-xs"
-              >
-                {point.label}
+        {points.map((point, index) => {
+          const isPeak = point.value_mgdl === peak && points.length > 1;
+
+          return (
+            <g key={point.id}>
+              <title>
+                {`${formatDate(point.recorded_at)} - ${point.value_mgdl} mg/dL (${point.status.label})`}
+              </title>
+              {isPeak && (
+                <circle
+                  cx={point.x}
+                  cy={point.y}
+                  r="9"
+                  fill="none"
+                  stroke={point.status.chart}
+                  strokeOpacity="0.28"
+                  strokeWidth="5"
+                />
+              )}
+              <circle cx={point.x} cy={point.y} r="5" fill={point.status.chart} />
+              <text x={point.x} y={point.y - 12} textAnchor="middle" className="fill-[#082f49] text-xs">
+                {point.value_mgdl}
               </text>
-            )}
-          </g>
-        ))}
+              {(index === 0 || index === points.length - 1 || points.length <= 6) && (
+                <text
+                  x={point.x}
+                  y={height - 18}
+                  textAnchor="middle"
+                  className="fill-[#607585] text-xs"
+                >
+                  {point.label}
+                </text>
+              )}
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
+}
+
+function getTrend(records: GlucoseRecord[]) {
+  const ordered = getChartData(records);
+
+  if (ordered.length < 2) {
+    return "Dados insuficientes";
+  }
+
+  const first = ordered[0].value_mgdl;
+  const last = ordered[ordered.length - 1].value_mgdl;
+  const diff = last - first;
+
+  if (Math.abs(diff) <= 10) {
+    return "Tendência estável";
+  }
+
+  return diff > 0 ? "Tendência de alta" : "Tendência de queda";
+}
+
+function getStability(records: GlucoseRecord[]) {
+  if (records.length < 3) {
+    return "Aguardando mais registros";
+  }
+
+  const values = records.map((record) => record.value_mgdl);
+  const range = Math.max(...values) - Math.min(...values);
+
+  if (range <= 30) {
+    return "Boa estabilidade";
+  }
+
+  if (range <= 70) {
+    return "Variação moderada";
+  }
+
+  return "Variação ampla";
 }
 
 export default async function DashboardPage({
@@ -214,12 +400,14 @@ export default async function DashboardPage({
   } = await supabase.auth.getUser();
 
   const selectedContext = params.context ?? "todos";
+  const selectedPeriod: PeriodFilter = params.period && params.period in periodLabels ? params.period : "30d";
 
   let query = supabase
     .from("glucose_records")
     .select("id, value_mgdl, context, notes, recorded_at")
+    .gte("recorded_at", getPeriodStart(selectedPeriod))
     .order("recorded_at", { ascending: false })
-    .limit(30);
+    .limit(90);
 
   if (selectedContext !== "todos") {
     query = query.eq("context", selectedContext);
@@ -232,37 +420,68 @@ export default async function DashboardPage({
   const maxValue = getMax(records);
   const latest = records[0];
   const highCount = records.filter((record) => record.value_mgdl > 180).length;
+  const normalCount = records.filter((record) => {
+    return record.value_mgdl >= 70 && record.value_mgdl <= 140;
+  }).length;
+  const normalPercent = records.length > 0 ? Math.round((normalCount / records.length) * 100) : 0;
   const summaryCards = [
     {
       label: "Última medição",
       value: latest ? `${latest.value_mgdl}` : "--",
       unit: latest ? "mg/dL" : "",
       detail: latest ? formatDate(latest.recorded_at) : "Sem registros",
+      statusValue: latest?.value_mgdl,
       featured: true,
     },
     {
       label: "Média",
       value: average ? `${average}` : "--",
       unit: average ? "mg/dL" : "",
-      detail: "Filtro atual",
+      detail: periodLabels[selectedPeriod],
+      statusValue: average,
     },
     {
       label: "Menor",
       value: minValue ? `${minValue}` : "--",
       unit: minValue ? "mg/dL" : "",
       detail: "Período exibido",
+      statusValue: minValue,
     },
     {
       label: "Maior",
       value: maxValue ? `${maxValue}` : "--",
       unit: maxValue ? "mg/dL" : "",
       detail: "Período exibido",
+      statusValue: maxValue,
     },
     {
       label: "Registros",
       value: records.length.toString(),
       unit: "",
-      detail: "Últimos lançamentos",
+      detail: "Lançamentos filtrados",
+      statusValue: null,
+    },
+  ];
+  const insights = [
+    {
+      label: "Média do período",
+      value: average ? `${average} mg/dL` : "--",
+      detail: average ? getGlucoseStatus(average).description : "Sem registros no filtro atual",
+    },
+    {
+      label: "Registros altos",
+      value: highCount.toString(),
+      detail: "Acima de 180 mg/dL",
+    },
+    {
+      label: "Tendência",
+      value: getTrend(records),
+      detail: "Comparação entre primeiro e último registro",
+    },
+    {
+      label: "Estabilidade",
+      value: getStability(records),
+      detail: `${normalPercent}% na faixa normal`,
     },
   ];
 
@@ -304,6 +523,40 @@ export default async function DashboardPage({
           </div>
         </header>
 
+        <form
+          action="/dashboard"
+          className="grid gap-3 rounded-3xl border border-[#d8edf4] bg-white/85 p-3 shadow-sm shadow-sky-950/5 sm:grid-cols-[1fr_1fr_auto]"
+        >
+          <select
+            name="period"
+            defaultValue={selectedPeriod}
+            aria-label="Filtrar por período"
+            className="h-11 rounded-2xl border border-[#cfe5ed] bg-white px-3 text-sm outline-none focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
+          >
+            {periods.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <select
+            name="context"
+            defaultValue={selectedContext}
+            aria-label="Filtrar por contexto"
+            className="h-11 rounded-2xl border border-[#cfe5ed] bg-white px-3 text-sm outline-none focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30"
+          >
+            <option value="todos">Todos os contextos</option>
+            {contexts.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <Button type="submit" className="h-11 bg-[#0f6f8f] text-white hover:bg-[#0b5f7b]">
+            Aplicar filtros
+          </Button>
+        </form>
+
         {(params.error || params.success || error) && (
           <div
             className={`rounded-2xl border px-4 py-3 text-sm ${
@@ -325,16 +578,34 @@ export default async function DashboardPage({
               }`}
             >
               <CardHeader className="gap-2">
-                <CardDescription className={card.featured ? "text-white/75" : "text-[#607585]"}>
-                  {card.label}
-                </CardDescription>
+                <div className="flex items-start justify-between gap-2">
+                  <CardDescription className={card.featured ? "text-white/75" : "text-[#607585]"}>
+                    {card.label}
+                  </CardDescription>
+                  {!card.featured && <StatusBadge value={card.statusValue} />}
+                </div>
                 <CardTitle className={card.featured ? "text-3xl text-white" : "text-3xl text-[#062338]"}>
                   {card.value}
                   {card.unit && <span className="ml-1 text-sm font-medium opacity-80">{card.unit}</span>}
                 </CardTitle>
-                <p className={card.featured ? "text-xs text-white/75" : "text-xs text-[#7b8d98]"}>
-                  {card.detail}
-                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className={card.featured ? "text-xs text-white/75" : "text-xs text-[#7b8d98]"}>
+                    {card.detail}
+                  </p>
+                  {card.featured && <StatusBadge value={card.statusValue} />}
+                </div>
+              </CardHeader>
+            </Card>
+          ))}
+        </section>
+
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {insights.map((insight) => (
+            <Card key={insight.label} className="rounded-2xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
+              <CardHeader className="gap-2">
+                <CardDescription className="text-[#607585]">{insight.label}</CardDescription>
+                <CardTitle className="text-xl text-[#062338]">{insight.value}</CardTitle>
+                <p className="text-xs leading-5 text-[#7b8d98]">{insight.detail}</p>
               </CardHeader>
             </Card>
           ))}
@@ -344,7 +615,7 @@ export default async function DashboardPage({
           <CardHeader>
             <CardTitle className="text-[#062338]">Evolução da glicemia</CardTitle>
             <CardDescription className="text-[#607585]">
-              Registros em ordem cronológica, com valores em mg/dL.
+              Pontos coloridos por faixa, com destaque para picos do período.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -420,30 +691,11 @@ export default async function DashboardPage({
 
           <Card className="rounded-3xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
             <CardHeader>
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <CardTitle className="text-[#062338]">Histórico</CardTitle>
-                  <CardDescription className="text-[#607585]">
-                    Últimos {records.length} registros. {highCount} acima de 180 mg/dL.
-                  </CardDescription>
-                </div>
-                <form className="flex w-full items-center gap-2 md:w-auto" action="/dashboard">
-                  <select
-                    name="context"
-                    defaultValue={selectedContext}
-                    className="h-10 flex-1 rounded-lg border border-[#cfe5ed] bg-white px-2 text-sm outline-none focus-visible:border-[#7cc8da] focus-visible:ring-3 focus-visible:ring-[#7cc8da]/30 md:flex-none"
-                  >
-                    <option value="todos">Todos</option>
-                    {contexts.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                  <Button type="submit" variant="outline" className="h-10 border-[#b8dce8] text-[#0f4864]">
-                    Filtrar
-                  </Button>
-                </form>
+              <div>
+                <CardTitle className="text-[#062338]">Histórico</CardTitle>
+                <CardDescription className="text-[#607585]">
+                  {records.length} registros no filtro atual. {highCount} acima de 180 mg/dL.
+                </CardDescription>
               </div>
             </CardHeader>
             <CardContent>
@@ -452,7 +704,7 @@ export default async function DashboardPage({
                   <CalendarClock className="mb-3 size-8 text-[#8cb7c5]" />
                   <p className="font-medium text-[#082f49]">Nenhum registro encontrado</p>
                   <p className="mt-1 text-sm text-[#607585]">
-                    Salve sua primeira medição para montar o histórico.
+                    Ajuste os filtros ou salve uma nova medição.
                   </p>
                 </div>
               ) : (
@@ -471,14 +723,22 @@ export default async function DashboardPage({
                       <div className="grid grid-cols-[1fr_auto] items-start gap-3 md:grid-cols-[140px_1fr_140px_auto]">
                         <div>
                           <p className="text-lg font-semibold text-[#062338]">{record.value_mgdl} mg/dL</p>
-                          <p className="text-xs text-[#607585] md:hidden">
+                          <div className="mt-2 md:hidden">
+                            <StatusBadge value={record.value_mgdl} />
+                          </div>
+                          <p className="mt-1 text-xs text-[#607585] md:hidden">
                             {formatDate(record.recorded_at)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-[#082f49]">
-                            {contextLabels[record.context] ?? record.context}
-                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-medium text-[#082f49]">
+                              {contextLabels[record.context] ?? record.context}
+                            </p>
+                            <span className="hidden md:inline-flex">
+                              <StatusBadge value={record.value_mgdl} />
+                            </span>
+                          </div>
                           {record.notes && (
                             <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#607585] md:line-clamp-1">
                               {record.notes}
@@ -495,14 +755,14 @@ export default async function DashboardPage({
                             variant="ghost"
                             size="icon"
                             aria-label="Remover registro"
-                            className="text-[#607585] hover:bg-rose-50 hover:text-rose-700"
+                            className="size-10 text-[#607585] hover:bg-rose-50 hover:text-rose-700"
                           >
                             <Trash2 className="size-4" />
                           </Button>
                         </form>
                       </div>
                       <details className="mt-3 rounded-xl bg-[#f8fbfc] px-3 py-2">
-                        <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-[#0f6f8f]">
+                        <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 text-sm font-medium text-[#0f6f8f]">
                           <Pencil className="size-4" />
                           Editar registro
                         </summary>
