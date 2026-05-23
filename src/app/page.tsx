@@ -32,12 +32,11 @@ export default function Home() {
             <Image
               src="/branding/glix-logo-main.png"
               alt="Glix"
-              width={44}
-              height={44}
-              className="size-11 rounded-xl object-contain"
+              width={112}
+              height={48}
+              className="h-12 w-auto object-contain"
               priority
             />
-            <span className="text-xl font-semibold tracking-tight">Glix</span>
           </Link>
           <nav className="flex items-center gap-2">
             <Link
