@@ -29,6 +29,8 @@ This changelog summarizes the main project milestones. Dates are approximate and
 - Added `profiles` and `glucose_records` tables.
 - Enabled Row Level Security.
 - Added policies for user-owned data access.
+- Documented Supabase Security Advisor hardening for `public.handle_new_user()`.
+- Added fixed function `search_path` and revoked direct execute permissions in the setup script.
 
 ### Authentication
 
