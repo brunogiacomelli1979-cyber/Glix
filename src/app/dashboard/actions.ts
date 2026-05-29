@@ -6,11 +6,18 @@ import { redirect } from "next/navigation";
 import { parseGlucoseFormData } from "@/lib/glucose";
 import { createClient } from "@/utils/supabase/server";
 
-function dashboardError(message: string): never {
-  redirect(`/dashboard?error=${encodeURIComponent(message)}`);
+function getCreateRedirectPath(formData: FormData) {
+  const redirectTo = String(formData.get("redirect_to") ?? "");
+
+  return redirectTo === "/registrar" ? "/registrar" : "/dashboard";
+}
+
+function pageError(path: "/dashboard" | "/registrar", message: string): never {
+  redirect(`${path}?error=${encodeURIComponent(message)}`);
 }
 
 export async function createGlucoseRecord(formData: FormData) {
+  const redirectPath = getCreateRedirectPath(formData);
   const supabase = await createClient();
   const {
     data: { user },
@@ -23,7 +30,7 @@ export async function createGlucoseRecord(formData: FormData) {
   const parsed = parseGlucoseFormData(formData);
 
   if (!parsed.data) {
-    dashboardError(parsed.error ?? "Não foi possível salvar o registro.");
+    pageError(redirectPath, parsed.error ?? "Nao foi possivel salvar o registro.");
   }
 
   const recordData = parsed.data;
@@ -34,11 +41,12 @@ export async function createGlucoseRecord(formData: FormData) {
   });
 
   if (error) {
-    dashboardError(error.message);
+    pageError(redirectPath, error.message);
   }
 
   revalidatePath("/dashboard");
-  redirect("/dashboard?success=Registro salvo.");
+  revalidatePath("/registrar");
+  redirect(`${redirectPath}?success=${encodeURIComponent("Registro salvo.")}`);
 }
 
 export async function updateGlucoseRecord(formData: FormData) {
@@ -54,13 +62,13 @@ export async function updateGlucoseRecord(formData: FormData) {
   const id = String(formData.get("id") ?? "");
 
   if (!id) {
-    dashboardError("Registro não encontrado.");
+    pageError("/dashboard", "Registro nao encontrado.");
   }
 
   const parsed = parseGlucoseFormData(formData);
 
   if (!parsed.data) {
-    dashboardError(parsed.error ?? "Não foi possível atualizar o registro.");
+    pageError("/dashboard", parsed.error ?? "Nao foi possivel atualizar o registro.");
   }
 
   const recordData = parsed.data;
@@ -72,7 +80,7 @@ export async function updateGlucoseRecord(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    dashboardError(error.message);
+    pageError("/dashboard", error.message);
   }
 
   revalidatePath("/dashboard");
@@ -92,7 +100,7 @@ export async function deleteGlucoseRecord(formData: FormData) {
   const id = String(formData.get("id") ?? "");
 
   if (!id) {
-    dashboardError("Registro não encontrado.");
+    pageError("/dashboard", "Registro nao encontrado.");
   }
 
   const { error } = await supabase
@@ -102,7 +110,7 @@ export async function deleteGlucoseRecord(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    dashboardError(error.message);
+    pageError("/dashboard", error.message);
   }
 
   revalidatePath("/dashboard");

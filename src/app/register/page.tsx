@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { signup } from "@/app/auth/actions";
+import { PasswordField } from "@/components/auth/password-field";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -57,14 +58,7 @@ export default async function RegisterPage({
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                minLength={6}
-                className="h-11 border-[#cfe5ed] bg-white"
-                required
-              />
+              <PasswordField />
             </div>
             <p className="rounded-lg border border-[#c7edf3] bg-[#eefaff] px-3 py-2 text-sm leading-6 text-[#0f4864]">
               Depois do cadastro, confirme sua conta pelo link enviado ao seu e-mail.

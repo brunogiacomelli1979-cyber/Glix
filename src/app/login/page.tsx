@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { login } from "@/app/auth/actions";
+import { PasswordField } from "@/components/auth/password-field";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -57,13 +58,7 @@ export default async function LoginPage({
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                className="h-11 border-[#cfe5ed] bg-white"
-                required
-              />
+              <PasswordField />
             </div>
             {resolvedParams?.error && (
               <div className="rounded-lg border border-rose-100 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">

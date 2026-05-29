@@ -1,7 +1,6 @@
 import Image from "next/image";
 
-import { logout } from "@/app/auth/actions";
-import { Button } from "@/components/ui/button";
+import { UserNav } from "@/components/app/user-nav";
 
 type DashboardHeaderProps = {
   email?: string;
@@ -10,7 +9,7 @@ type DashboardHeaderProps = {
 export function DashboardHeader({ email }: DashboardHeaderProps) {
   return (
     <header className="rounded-3xl border border-[#d8edf4] bg-white/80 px-4 py-4 shadow-sm shadow-sky-950/5 backdrop-blur sm:px-5">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
             <Image
@@ -34,15 +33,7 @@ export function DashboardHeader({ email }: DashboardHeaderProps) {
             </p>
           )}
         </div>
-        <form action={logout}>
-          <Button
-            variant="outline"
-            type="submit"
-            className="h-10 border-[#b8dce8] bg-white/70 px-4 text-[#0f4864]"
-          >
-            Sair
-          </Button>
-        </form>
+        <UserNav active="dashboard" />
       </div>
     </header>
   );

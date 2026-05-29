@@ -3,7 +3,6 @@ import { FilterBar } from "@/components/dashboard/filter-bar";
 import { GlucoseChart } from "@/components/dashboard/glucose-chart";
 import { HistoryList } from "@/components/dashboard/history-list";
 import { InsightCards } from "@/components/dashboard/insight-cards";
-import { MeasurementForm } from "@/components/dashboard/measurement-form";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import {
   getDashboardMetrics,
@@ -72,8 +71,7 @@ export default async function DashboardPage({
         <InsightCards insights={insights} />
         <GlucoseChart records={records} />
 
-        <section className="grid gap-4 lg:grid-cols-[380px_1fr] lg:gap-6">
-          <MeasurementForm />
+        <section>
           <HistoryList highCount={highCount} records={records} />
         </section>
 
