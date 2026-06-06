@@ -39,6 +39,7 @@ This changelog summarizes the main project milestones. Dates are approximate and
 - Implemented logout.
 - Added protected dashboard routing.
 - Added email confirmation guidance for users.
+- Added show/hide password controls to login and registration pages.
 
 ### Glucose Records CRUD
 
@@ -57,6 +58,14 @@ This changelog summarizes the main project milestones. Dates are approximate and
 - Added automatic insights.
 - Added glucose evolution chart.
 - Improved mobile-first dashboard layout.
+
+### Logged-In App Navigation
+
+- Added `/registrar` as the primary post-login route for quick glucose logging.
+- Simplified `/dashboard` into a short summary view focused on key indicators and a compact chart.
+- Added `/historico` as the detailed history area for filters, notes, editing and deletion.
+- Updated logged-in navigation to: Registrar, Resumo, Historico and Sair.
+- Added a floating `+` shortcut from summary/history back to quick registration.
 
 ### Visual Identity
 
@@ -118,11 +127,15 @@ This changelog summarizes the main project milestones. Dates are approximate and
 - Increased touch target comfort in filters, actions and form controls.
 - Improved contrast for secondary text in cards, chart, history and helper messages.
 - Refined the mobile-first dashboard experience while preserving the existing CRUD flow.
+- Refined the core product flow around fast daily registration and optional deeper review.
 
 ## Next Planned Milestones
 
 - Add automated tests for validation helpers.
-- Add privacy policy and terms pages.
+- Add profile/account page.
+- Add password recovery flow.
+- Add dedicated LGPD consent page/flow.
+- Add QA checklist for mobile/PWA testing.
 - Add CSV/PDF export.
 - Add account deletion flow.
 - Improve accessibility testing.

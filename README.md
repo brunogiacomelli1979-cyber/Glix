@@ -1,6 +1,6 @@
 # Glix
 
-Glix is a mobile-first micro-SaaS/PWA for personal glucose tracking. It helps users register glucose measurements, visualize trends, filter their history and keep a clearer personal record over time.
+Glix is a mobile-first micro-SaaS/PWA for personal glucose tracking. It helps users quickly register glucose measurements, review a simple summary and access a detailed editable history when needed.
 
 Production: [https://glix-one.vercel.app/](https://glix-one.vercel.app/)  
 Repository: [https://github.com/brunogiacomelli1979-cyber/Glix](https://github.com/brunogiacomelli1979-cyber/Glix)
@@ -11,7 +11,7 @@ Repository: [https://github.com/brunogiacomelli1979-cyber/Glix](https://github.c
 
 Current status: portfolio-ready MVP published in production.
 
-The project already includes authentication, protected dashboard, CRUD for glucose records, visual classification, temporal filters, automatic insights, a basic evolution chart, centralized validation, reusable dashboard components, a refined mobile-first interface and installable PWA support.
+The project already includes authentication, a quick logging flow, protected summary and history views, CRUD for glucose records, visual classification, temporal filters, automatic insights, a basic evolution chart, centralized validation, reusable components, a refined mobile-first interface and installable PWA support.
 
 ## Product Overview
 
@@ -21,8 +21,9 @@ The product focuses on:
 
 - quick glucose measurement registration;
 - secure access with user accounts;
-- organized history by period and context;
-- simple visual trends;
+- a short summary for daily review;
+- organized editable history by period and context;
+- simple visual trends without clinical interpretation;
 - a mobile-first interface suitable for daily use.
 
 Glix is intentionally not positioned as a clinical tool. It is a digital diary for personal organization and better conversations with healthcare professionals.
@@ -62,7 +63,12 @@ This is not a "100% no-code" project. The application includes real code written
 - Public landing page with official Glix branding
 - Product-style landing hero built with HTML/CSS, avoiding generic external mockups
 - Email/password authentication with Supabase Auth
-- Protected dashboard
+- Show/hide password control on login and registration pages
+- Protected logged-in experience split into three clear areas:
+  - `Registrar`: fast daily glucose logging
+  - `Resumo`: short dashboard with key indicators
+  - `Historico`: detailed history with filters, editing and deletion
+- Quick glucose registration after login
 - Create, edit and delete glucose records
 - Fields: glucose value, date/time, measurement context and notes
 - Temporal filters: today, 7 days, 30 days and 90 days
@@ -79,10 +85,27 @@ This is not a "100% no-code" project. The application includes real code written
   - trend
   - stability
 - Evolution chart
+- Floating `+` shortcut from summary/history to the quick registration screen
 - Centralized validation
 - Mobile-first responsive UI
 - Improved contrast and readability for dashboard cards, filters, chart, history and forms
 - Installable PWA with manifest, public icons and mobile installation metadata
+
+## Logged-In User Flow
+
+The private app is organized around the most common real-world task: registering a glucose measurement quickly.
+
+```text
+Login -> Registrar -> Resumo -> Historico
+```
+
+Main routes:
+
+- `/registrar`: primary post-login route focused on saving a new measurement in seconds.
+- `/dashboard`: compact summary view with latest measurement, 7-day average, min/max, trend, insight and mini chart.
+- `/historico`: detailed view with full filtered history, notes, editing and deletion.
+
+This separation keeps the daily experience simple while preserving deeper analysis and record management for moments when the user wants to review details.
 
 ## Screenshots and Assets
 
@@ -109,16 +132,16 @@ The app uses the Next.js App Router with server-side data access through Supabas
 High-level flow:
 
 ```text
-User -> Next.js App Router -> Server Actions / Server Components -> Supabase Auth + Database -> Dashboard UI
+User -> Next.js App Router -> Server Actions / Server Components -> Supabase Auth + Database -> Logged-in UI
 ```
 
 Key architectural decisions:
 
 - Server Actions handle mutations.
-- Server Components fetch protected dashboard data.
+- Server Components fetch protected data for `Registrar`, `Resumo` and `Historico`.
 - Supabase Auth manages user identity.
 - Supabase Row Level Security isolates user data.
-- Dashboard UI is split into reusable components.
+- Logged-in UI is split into reusable components.
 - Glucose rules and validation are centralized in `src/lib/glucose.ts`.
 - Shared types live in `src/types/glucose.ts`.
 
@@ -213,11 +236,15 @@ src/app/
   page.tsx                 Public landing page
   login/page.tsx           Login page
   register/page.tsx        Registration page
-  dashboard/page.tsx       Protected dashboard
+  dashboard/page.tsx       Protected summary page
   dashboard/actions.ts     Server Actions for glucose records
+  historico/page.tsx       Protected detailed history
+  registrar/page.tsx       Protected quick logging page
   auth/actions.ts          Authentication actions
 
+src/components/app/        Logged-in navigation and shortcuts
 src/components/dashboard/  Dashboard components
+src/components/measurements/ Quick measurement form components
 src/components/ui/         Base UI components
 src/lib/glucose.ts         Glucose rules, metrics and validation
 src/types/glucose.ts       Shared glucose types
@@ -229,16 +256,18 @@ public/branding/           Official visual assets
 
 Short-term:
 
-- add richer chart interactions;
-- improve user-facing error messages.
 - test the experience with real users;
-- add privacy policy and terms pages;
+- add profile/account page;
+- add password recovery flow;
+- add dedicated LGPD consent page/flow;
+- create a QA checklist for mobile/PWA testing;
 - add production monitoring and error tracking;
 - connect a custom domain.
 
 Medium-term:
 
 - export CSV reports;
+- export PDF reports as a future premium feature;
 - profile settings;
 - account deletion flow;
 - production analytics and monitoring.

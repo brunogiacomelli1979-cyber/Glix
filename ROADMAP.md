@@ -12,6 +12,11 @@ The current MVP includes:
 - integrated Glix branding across the app;
 - responsive mobile-first UI;
 - refined dashboard readability and contrast;
+- quick glucose registration flow;
+- `Registrar` as the primary post-login experience;
+- compact summary dashboard;
+- separate detailed history view;
+- clear logged-in navigation with Registrar, Resumo, Historico and Sair;
 - Supabase authentication;
 - protected dashboard;
 - Supabase database integration;
@@ -28,6 +33,7 @@ The current MVP includes:
   - 30 days;
   - 90 days;
 - context filter;
+- full history area with filtering, editing and deletion;
 - glucose classification badges;
 - automatic insights;
 - evolution chart;
@@ -45,6 +51,10 @@ The current MVP includes:
 Priorities for the next iteration:
 
 - test the experience with real users;
+- create a profile/account page;
+- add password recovery flow;
+- add dedicated LGPD consent page/flow;
+- create a QA checklist for mobile/PWA testing;
 - connect a custom domain;
 - add basic analytics;
 - add production monitoring and error tracking;
@@ -59,6 +69,7 @@ Priorities for the next iteration:
 Product and technical improvements:
 
 - CSV export;
+- PDF export as a future premium feature;
 - profile settings;
 - account deletion flow;
 - improved chart interactions;
