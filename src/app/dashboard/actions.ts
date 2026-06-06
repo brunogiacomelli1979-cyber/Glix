@@ -12,7 +12,13 @@ function getCreateRedirectPath(formData: FormData) {
   return redirectTo === "/registrar" ? "/registrar" : "/dashboard";
 }
 
-function pageError(path: "/dashboard" | "/registrar", message: string): never {
+function getRecordRedirectPath(formData: FormData) {
+  const redirectTo = String(formData.get("redirect_to") ?? "");
+
+  return redirectTo === "/historico" ? "/historico" : "/dashboard";
+}
+
+function pageError(path: "/dashboard" | "/historico" | "/registrar", message: string): never {
   redirect(`${path}?error=${encodeURIComponent(message)}`);
 }
 
@@ -50,6 +56,7 @@ export async function createGlucoseRecord(formData: FormData) {
 }
 
 export async function updateGlucoseRecord(formData: FormData) {
+  const redirectPath = getRecordRedirectPath(formData);
   const supabase = await createClient();
   const {
     data: { user },
@@ -62,13 +69,13 @@ export async function updateGlucoseRecord(formData: FormData) {
   const id = String(formData.get("id") ?? "");
 
   if (!id) {
-    pageError("/dashboard", "Registro nao encontrado.");
+    pageError(redirectPath, "Registro nao encontrado.");
   }
 
   const parsed = parseGlucoseFormData(formData);
 
   if (!parsed.data) {
-    pageError("/dashboard", parsed.error ?? "Nao foi possivel atualizar o registro.");
+    pageError(redirectPath, parsed.error ?? "Nao foi possivel atualizar o registro.");
   }
 
   const recordData = parsed.data;
@@ -80,14 +87,16 @@ export async function updateGlucoseRecord(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    pageError("/dashboard", error.message);
+    pageError(redirectPath, error.message);
   }
 
   revalidatePath("/dashboard");
-  redirect("/dashboard?success=Registro atualizado.");
+  revalidatePath("/historico");
+  redirect(`${redirectPath}?success=${encodeURIComponent("Registro atualizado.")}`);
 }
 
 export async function deleteGlucoseRecord(formData: FormData) {
+  const redirectPath = getRecordRedirectPath(formData);
   const supabase = await createClient();
   const {
     data: { user },
@@ -100,7 +109,7 @@ export async function deleteGlucoseRecord(formData: FormData) {
   const id = String(formData.get("id") ?? "");
 
   if (!id) {
-    pageError("/dashboard", "Registro nao encontrado.");
+    pageError(redirectPath, "Registro nao encontrado.");
   }
 
   const { error } = await supabase
@@ -110,9 +119,10 @@ export async function deleteGlucoseRecord(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    pageError("/dashboard", error.message);
+    pageError(redirectPath, error.message);
   }
 
   revalidatePath("/dashboard");
-  redirect("/dashboard?success=Registro removido.");
+  revalidatePath("/historico");
+  redirect(`${redirectPath}?success=${encodeURIComponent("Registro removido.")}`);
 }

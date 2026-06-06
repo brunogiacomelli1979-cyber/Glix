@@ -1,22 +1,24 @@
+import Link from "next/link";
+
+import { FloatingRegisterButton } from "@/components/app/floating-register-button";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { FilterBar } from "@/components/dashboard/filter-bar";
 import { GlucoseChart } from "@/components/dashboard/glucose-chart";
-import { HistoryList } from "@/components/dashboard/history-list";
 import { InsightCards } from "@/components/dashboard/insight-cards";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import {
-  getDashboardMetrics,
+  formatDate,
+  getAverage,
+  getGlucoseStatus,
+  getMax,
+  getMin,
   getPeriodStart,
-  isGlucoseContext,
-  isPeriodFilter,
+  getTrend,
 } from "@/lib/glucose";
-import type { GlucoseRecord, PeriodFilter } from "@/types/glucose";
+import type { GlucoseRecord, InsightCard, SummaryCard } from "@/types/glucose";
 import { createClient } from "@/utils/supabase/server";
 
 type DashboardSearchParams = Promise<{
-  context?: string;
   error?: string;
-  period?: string;
   success?: string;
 }>;
 
@@ -31,31 +33,85 @@ export default async function DashboardPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const selectedPeriod: PeriodFilter = isPeriodFilter(params.period) ? params.period : "30d";
-  const selectedContext = params.context ?? "todos";
+  const [periodResult, latestResult] = await Promise.all([
+    supabase
+      .from("glucose_records")
+      .select("id, value_mgdl, context, notes, recorded_at")
+      .gte("recorded_at", getPeriodStart("7d"))
+      .order("recorded_at", { ascending: false })
+      .limit(30),
+    supabase
+      .from("glucose_records")
+      .select("id, value_mgdl, context, notes, recorded_at")
+      .order("recorded_at", { ascending: false })
+      .limit(1),
+  ]);
 
-  let query = supabase
-    .from("glucose_records")
-    .select("id, value_mgdl, context, notes, recorded_at")
-    .gte("recorded_at", getPeriodStart(selectedPeriod))
-    .order("recorded_at", { ascending: false })
-    .limit(90);
+  const records = (periodResult.data ?? []) as GlucoseRecord[];
+  const latest = (latestResult.data?.[0] ?? null) as GlucoseRecord | null;
+  const average = getAverage(records);
+  const minValue = getMin(records);
+  const maxValue = getMax(records);
+  const highCount = records.filter((record) => record.value_mgdl > 180).length;
 
-  if (isGlucoseContext(selectedContext)) {
-    query = query.eq("context", selectedContext);
-  }
+  const summaryCards: SummaryCard[] = [
+    {
+      label: "Última medição",
+      value: latest ? `${latest.value_mgdl}` : "--",
+      unit: latest ? "mg/dL" : "",
+      detail: latest ? formatDate(latest.recorded_at) : "Sem registros",
+      statusValue: latest?.value_mgdl,
+      featured: true,
+    },
+    {
+      label: "Média",
+      value: average ? `${average}` : "--",
+      unit: average ? "mg/dL" : "",
+      detail: "Últimos 7 dias",
+      statusValue: average,
+    },
+    {
+      label: "Menor",
+      value: minValue ? `${minValue}` : "--",
+      unit: minValue ? "mg/dL" : "",
+      detail: "Últimos 7 dias",
+      statusValue: minValue,
+    },
+    {
+      label: "Maior",
+      value: maxValue ? `${maxValue}` : "--",
+      unit: maxValue ? "mg/dL" : "",
+      detail: "Últimos 7 dias",
+      statusValue: maxValue,
+    },
+  ];
 
-  const { data, error } = await query;
-  const records = (data ?? []) as GlucoseRecord[];
-  const { highCount, insights, summaryCards } = getDashboardMetrics(records, selectedPeriod);
+  const insightDetail =
+    records.length === 0
+      ? "Registre uma medição para iniciar seu acompanhamento."
+      : highCount > 0
+        ? `${highCount} registro(s) acima de 180 mg/dL no período.`
+        : "Nenhum registro acima de 180 mg/dL no período.";
+
+  const insights: InsightCard[] = [
+    {
+      label: "Tendência",
+      value: getTrend(records),
+      detail: "Comparação simples entre o primeiro e o último registro dos últimos 7 dias.",
+    },
+    {
+      label: "Insight discreto",
+      value: average ? getGlucoseStatus(average).label : "Aguardando dados",
+      detail: insightDetail,
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#eefaff_0%,#f8fbfc_42%,#ffffff_100%)] text-[#082f49]">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:gap-6 sm:px-8 sm:py-6">
-        <DashboardHeader email={user?.email} />
-        <FilterBar selectedContext={selectedContext} selectedPeriod={selectedPeriod} />
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:gap-6 sm:px-8 sm:py-6">
+        <DashboardHeader email={user?.email} eyebrow="Resumo" title="Visão rápida" />
 
-        {(params.error || params.success || error) && (
+        {(params.error || params.success || periodResult.error || latestResult.error) && (
           <div
             className={`rounded-2xl border px-4 py-3 text-base leading-7 ${
               params.success
@@ -63,7 +119,7 @@ export default async function DashboardPage({
                 : "border-rose-100 bg-rose-50 text-rose-700"
             }`}
           >
-            {params.success ?? params.error ?? error?.message}
+            {params.success ?? params.error ?? periodResult.error?.message ?? latestResult.error?.message}
           </div>
         )}
 
@@ -71,15 +127,19 @@ export default async function DashboardPage({
         <InsightCards insights={insights} />
         <GlucoseChart records={records} />
 
-        <section>
-          <HistoryList highCount={highCount} records={records} />
-        </section>
+        <Link
+          href="/historico"
+          className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#b8dce8] bg-white/85 px-4 text-base font-medium text-[#0f4864] shadow-sm shadow-sky-950/5 transition hover:bg-white"
+        >
+          Ver histórico completo
+        </Link>
 
         <section className="rounded-2xl border border-[#d8edf4] bg-white/80 px-4 py-3 text-sm leading-6 text-[#405968]">
           O Glix não realiza diagnóstico médico. Use os registros como apoio para organizar sua
           rotina e conversar com profissionais de saúde.
         </section>
       </div>
+      <FloatingRegisterButton />
     </main>
   );
 }

@@ -32,7 +32,9 @@ export async function updateSession(request: NextRequest) {
   const url = request.nextUrl.clone()
   const isAuthRoute = url.pathname === '/login' || url.pathname === '/register'
   const isProtectedRoute =
-    url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/registrar')
+    url.pathname.startsWith('/dashboard') ||
+    url.pathname.startsWith('/historico') ||
+    url.pathname.startsWith('/registrar')
 
   if (isProtectedRoute && !user) {
     url.pathname = '/login'

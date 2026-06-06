@@ -3,10 +3,18 @@ import Image from "next/image";
 import { UserNav } from "@/components/app/user-nav";
 
 type DashboardHeaderProps = {
+  active?: "dashboard" | "historico";
   email?: string;
+  eyebrow?: string;
+  title?: string;
 };
 
-export function DashboardHeader({ email }: DashboardHeaderProps) {
+export function DashboardHeader({
+  active = "dashboard",
+  email,
+  eyebrow = "Glix",
+  title = "Painel de glicemia",
+}: DashboardHeaderProps) {
   return (
     <header className="rounded-3xl border border-[#d8edf4] bg-white/80 px-4 py-4 shadow-sm shadow-sky-950/5 backdrop-blur sm:px-5">
       <div className="flex flex-col gap-4">
@@ -21,9 +29,9 @@ export function DashboardHeader({ email }: DashboardHeaderProps) {
               priority
             />
             <div>
-              <p className="text-sm font-semibold uppercase text-[#0f7897]">Glix</p>
+              <p className="text-sm font-semibold uppercase text-[#0f7897]">{eyebrow}</p>
               <h1 className="text-2xl font-semibold tracking-tight text-[#062338]">
-                Painel de glicemia
+                {title}
               </h1>
             </div>
           </div>
@@ -33,7 +41,7 @@ export function DashboardHeader({ email }: DashboardHeaderProps) {
             </p>
           )}
         </div>
-        <UserNav active="dashboard" />
+        <UserNav active={active} />
       </div>
     </header>
   );

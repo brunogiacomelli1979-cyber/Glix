@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type UserNavProps = {
-  active: "dashboard" | "registrar";
+  active: "dashboard" | "historico" | "registrar";
 };
 
 export function UserNav({ active }: UserNavProps) {
@@ -35,7 +35,18 @@ export function UserNav({ active }: UserNavProps) {
             : "border border-[#b8dce8] bg-white/70 text-[#0f4864] hover:bg-white"
         )}
       >
-        Dashboard
+        Resumo
+      </Link>
+      <Link
+        href="/historico"
+        className={cn(
+          linkClass,
+          active === "historico"
+            ? "bg-[#0f6f8f] text-white shadow-sm shadow-sky-950/10"
+            : "border border-[#b8dce8] bg-white/70 text-[#0f4864] hover:bg-white"
+        )}
+      >
+        Histórico
       </Link>
       <form action={logout}>
         <Button

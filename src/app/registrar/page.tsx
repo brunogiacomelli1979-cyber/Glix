@@ -75,7 +75,7 @@ export default async function RegisterMeasurementPage({
           href="/dashboard"
           className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#b8dce8] bg-white/80 px-4 text-base font-medium text-[#0f4864] shadow-sm shadow-sky-950/5 transition hover:bg-white"
         >
-          Ver dashboard
+          Ver resumo
         </Link>
       </div>
     </main>

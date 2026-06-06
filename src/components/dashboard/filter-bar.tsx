@@ -3,14 +3,15 @@ import { contexts, periods } from "@/lib/glucose";
 import type { PeriodFilter } from "@/types/glucose";
 
 type FilterBarProps = {
+  action?: string;
   selectedContext: string;
   selectedPeriod: PeriodFilter;
 };
 
-export function FilterBar({ selectedContext, selectedPeriod }: FilterBarProps) {
+export function FilterBar({ action = "/dashboard", selectedContext, selectedPeriod }: FilterBarProps) {
   return (
     <form
-      action="/dashboard"
+      action={action}
       className="grid gap-3 rounded-3xl border border-[#d8edf4] bg-white/85 p-3 shadow-sm shadow-sky-950/5 sm:grid-cols-[1fr_1fr_auto]"
     >
       <select

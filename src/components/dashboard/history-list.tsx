@@ -21,9 +21,10 @@ import { SubmitButton } from "./submit-button";
 type HistoryListProps = {
   highCount: number;
   records: GlucoseRecord[];
+  redirectTo?: "/dashboard" | "/historico";
 };
 
-export function HistoryList({ highCount, records }: HistoryListProps) {
+export function HistoryList({ highCount, records, redirectTo = "/dashboard" }: HistoryListProps) {
   return (
     <Card className="rounded-3xl border-[#d8edf4] bg-white/90 shadow-sm shadow-sky-950/5">
       <CardHeader>
@@ -86,6 +87,7 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                   </p>
                   <form action={deleteGlucoseRecord}>
                     <input type="hidden" name="id" value={record.id} />
+                    <input type="hidden" name="redirect_to" value={redirectTo} />
                     <Button
                       type="submit"
                       variant="ghost"
@@ -104,6 +106,7 @@ export function HistoryList({ highCount, records }: HistoryListProps) {
                   </summary>
                   <form action={updateGlucoseRecord} className="mt-4 grid gap-3 md:grid-cols-2">
                     <input type="hidden" name="id" value={record.id} />
+                    <input type="hidden" name="redirect_to" value={redirectTo} />
                     <div className="space-y-2">
                       <Label htmlFor={`value-${record.id}`}>Glicemia (mg/dL)</Label>
                       <Input
