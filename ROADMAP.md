@@ -17,6 +17,9 @@ The current MVP includes:
 - compact summary dashboard;
 - separate detailed history view;
 - clear logged-in navigation with Registrar, Resumo, Historico and Sair;
+- basic account page with name editing;
+- initial terms of use page;
+- initial privacy policy page;
 - Supabase authentication;
 - protected dashboard;
 - Supabase database integration;
@@ -51,7 +54,6 @@ The current MVP includes:
 Priorities for the next iteration:
 
 - test the experience with real users;
-- create a profile/account page;
 - add password recovery flow;
 - add dedicated LGPD consent page/flow;
 - create a QA checklist for mobile/PWA testing;
@@ -59,8 +61,6 @@ Priorities for the next iteration:
 - add basic analytics;
 - add production monitoring and error tracking;
 - improve form feedback messages;
-- add privacy policy page;
-- add terms/disclaimer page;
 - test the experience on real mobile devices;
 - add basic automated tests for validation helpers.
 

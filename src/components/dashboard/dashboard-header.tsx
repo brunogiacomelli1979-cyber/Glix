@@ -3,9 +3,10 @@ import Image from "next/image";
 import { UserNav } from "@/components/app/user-nav";
 
 type DashboardHeaderProps = {
-  active?: "dashboard" | "historico";
+  active?: "conta" | "dashboard" | "historico" | "registrar";
   email?: string;
   eyebrow?: string;
+  fullName?: string | null;
   title?: string;
 };
 
@@ -13,8 +14,11 @@ export function DashboardHeader({
   active = "dashboard",
   email,
   eyebrow = "Glix",
+  fullName,
   title = "Painel de glicemia",
 }: DashboardHeaderProps) {
+  const connectedAccount = fullName?.trim() || email;
+
   return (
     <header className="rounded-3xl border border-[#d8edf4] bg-white/80 px-4 py-4 shadow-sm shadow-sky-950/5 backdrop-blur sm:px-5">
       <div className="flex flex-col gap-4">
@@ -35,9 +39,10 @@ export function DashboardHeader({
               </h1>
             </div>
           </div>
-          {email && (
+          {connectedAccount && (
             <p className="mt-3 truncate text-[0.95rem] text-[#405968]">
-              Conta conectada: <span className="font-medium text-[#0f4864]">{email}</span>
+              Conta conectada:{" "}
+              <span className="font-medium text-[#0f4864]">{connectedAccount}</span>
             </p>
           )}
         </div>

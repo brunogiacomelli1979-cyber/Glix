@@ -1,7 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 
-import { UserNav } from "@/components/app/user-nav";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { QuickMeasurementForm } from "@/components/measurements/quick-measurement-form";
 import { createClient } from "@/utils/supabase/server";
 
@@ -26,31 +25,24 @@ export default async function RegisterMeasurementPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user?.id ?? "")
+    .maybeSingle<{ full_name: string | null }>();
+
+  const greetingName = profile?.full_name?.trim() || user?.email?.split("@")[0];
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#eefaff_0%,#f8fbfc_42%,#ffffff_100%)] text-[#082f49]">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-4 pb-[calc(2rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-6">
-        <header className="rounded-3xl border border-[#d8edf4] bg-white/80 px-4 py-4 shadow-sm shadow-sky-950/5 backdrop-blur sm:px-5">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/branding/glix-logo-main.png"
-                alt="Glix"
-                width={48}
-                height={48}
-                className="size-12 rounded-2xl object-contain"
-                priority
-              />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold uppercase text-[#0f7897]">Registro rápido</p>
-                <h1 className="text-2xl font-semibold tracking-tight text-[#062338]">
-                  Olá{user?.email ? `, ${user.email.split("@")[0]}` : ""}.
-                </h1>
-              </div>
-            </div>
-            <UserNav active="registrar" />
-          </div>
-        </header>
+        <DashboardHeader
+          active="registrar"
+          email={user?.email}
+          eyebrow="Registro rápido"
+          fullName={profile?.full_name}
+          title={`Olá${greetingName ? `, ${greetingName}` : ""}.`}
+        />
 
         {(params.error || params.success) && (
           <div

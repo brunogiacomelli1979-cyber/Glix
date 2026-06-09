@@ -33,7 +33,7 @@ export default async function DashboardPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [periodResult, latestResult] = await Promise.all([
+  const [periodResult, latestResult, profileResult] = await Promise.all([
     supabase
       .from("glucose_records")
       .select("id, value_mgdl, context, notes, recorded_at")
@@ -45,6 +45,11 @@ export default async function DashboardPage({
       .select("id, value_mgdl, context, notes, recorded_at")
       .order("recorded_at", { ascending: false })
       .limit(1),
+    supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user?.id ?? "")
+      .maybeSingle<{ full_name: string | null }>(),
   ]);
 
   const records = (periodResult.data ?? []) as GlucoseRecord[];
@@ -109,7 +114,12 @@ export default async function DashboardPage({
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#eefaff_0%,#f8fbfc_42%,#ffffff_100%)] text-[#082f49]">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:gap-6 sm:px-8 sm:py-6">
-        <DashboardHeader email={user?.email} eyebrow="Resumo" title="Visão rápida" />
+        <DashboardHeader
+          email={user?.email}
+          eyebrow="Resumo"
+          fullName={profileResult.data?.full_name}
+          title="Visão rápida"
+        />
 
         {(params.error || params.success || periodResult.error || latestResult.error) && (
           <div

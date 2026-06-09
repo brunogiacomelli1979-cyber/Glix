@@ -30,6 +30,11 @@ export default async function HistoryPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user?.id ?? "")
+    .maybeSingle<{ full_name: string | null }>();
 
   const selectedPeriod: PeriodFilter = isPeriodFilter(params.period) ? params.period : "30d";
   const selectedContext = params.context ?? "todos";
@@ -56,6 +61,7 @@ export default async function HistoryPage({
           active="historico"
           email={user?.email}
           eyebrow="Histórico"
+          fullName={profile?.full_name}
           title="Registros detalhados"
         />
 

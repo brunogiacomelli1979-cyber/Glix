@@ -66,6 +66,8 @@ This changelog summarizes the main project milestones. Dates are approximate and
 - Added `/historico` as the detailed history area for filters, notes, editing and deletion.
 - Updated logged-in navigation to: Registrar, Resumo, Historico and Sair.
 - Added a floating `+` shortcut from summary/history back to quick registration.
+- Added `/conta` with basic profile information and name editing.
+- Added initial public pages for terms of use and privacy policy.
 
 ### Visual Identity
 
@@ -132,7 +134,6 @@ This changelog summarizes the main project milestones. Dates are approximate and
 ## Next Planned Milestones
 
 - Add automated tests for validation helpers.
-- Add profile/account page.
 - Add password recovery flow.
 - Add dedicated LGPD consent page/flow.
 - Add QA checklist for mobile/PWA testing.

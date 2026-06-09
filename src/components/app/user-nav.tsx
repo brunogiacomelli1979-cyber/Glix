@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type UserNavProps = {
-  active: "dashboard" | "historico" | "registrar";
+  active: "conta" | "dashboard" | "historico" | "registrar";
 };
 
 export function UserNav({ active }: UserNavProps) {
@@ -47,6 +47,17 @@ export function UserNav({ active }: UserNavProps) {
         )}
       >
         Histórico
+      </Link>
+      <Link
+        href="/conta"
+        className={cn(
+          linkClass,
+          active === "conta"
+            ? "bg-[#0f6f8f] text-white shadow-sm shadow-sky-950/10"
+            : "border border-[#b8dce8] bg-white/70 text-[#0f4864] hover:bg-white"
+        )}
+      >
+        Conta
       </Link>
       <form action={logout}>
         <Button
