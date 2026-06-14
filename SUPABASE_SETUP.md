@@ -1,9 +1,9 @@
 -- ==========================================
--- Setup do Banco de Dados Supabase - Glix
+## -- Setup do Banco de Dados Supabase - Glix
 -- ==========================================
 
 -- ==========================================
--- 1. Criacao das tabelas
+## -- 1. Criacao das tabelas
 -- ==========================================
 
 CREATE TABLE IF NOT EXISTS public.profiles (
@@ -33,16 +33,16 @@ CREATE TABLE IF NOT EXISTS public.glucose_records (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- ==========================================
--- 2. Row Level Security
+-- ========================================== 
+## 2. Row Level Security
 -- ==========================================
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.glucose_records ENABLE ROW LEVEL SECURITY;
 
 -- ==========================================
--- 3. Policies - profiles
--- Reexecutavel: remove a policy antes de recriar.
+## -- 3. Policies - profiles
+## -- Reexecutavel: remove a policy antes de recriar.
 -- ==========================================
 
 DROP POLICY IF EXISTS "Usuarios podem ver o proprio perfil" ON public.profiles;
@@ -62,8 +62,8 @@ CREATE POLICY "Usuarios podem atualizar o proprio perfil"
   WITH CHECK (auth.uid() = id);
 
 -- ==========================================
--- 4. Policies - glucose_records
--- Reexecutavel: remove a policy antes de recriar.
+## -- 4. Policies - glucose_records
+## -- Reexecutavel: remove a policy antes de recriar.
 -- ==========================================
 
 DROP POLICY IF EXISTS "Usuarios podem ver seus proprios registros" ON public.glucose_records;
@@ -97,8 +97,8 @@ CREATE POLICY "Usuarios podem deletar seus proprios registros"
   USING (auth.uid() = user_id);
 
 -- ==========================================
--- 5. Trigger de criacao automatica de perfil
--- Reexecutavel: remove o trigger antes de recriar.
+## -- 5. Trigger de criacao automatica de perfil
+## -- Reexecutavel: remove o trigger antes de recriar.
 -- ==========================================
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
