@@ -1,128 +1,128 @@
-# Product Vision - Glix
+# Visão de Produto - Glix
 
-Glix is a mobile-first digital diary for personal glucose tracking. It is designed to help users organize measurements, understand simple trends and keep a clearer personal history.
+Glix é um diário digital mobile-first para acompanhamento pessoal de glicemia. Ele foi projetado para ajudar usuários a organizar medições, entender tendências simples e manter um histórico pessoal mais claro.
 
-Glix is not a medical diagnostic tool and does not replace professional guidance.
+Glix não é uma ferramenta de diagnóstico médico e não substitui orientação profissional.
 
-## Problem
+## Problema
 
-Many people record glucose measurements in fragmented or inconvenient ways:
+Muitas pessoas registram medições de glicemia de formas fragmentadas ou pouco práticas:
 
-- paper notebooks;
-- spreadsheets;
-- generic notes apps;
-- apps with poor usability;
-- screenshots or messages;
-- memory.
+- cadernos de papel;
+- planilhas;
+- aplicativos genéricos de notas;
+- apps com baixa usabilidade;
+- screenshots ou mensagens;
+- memória.
 
-This makes it harder to:
+Isso torna mais difícil:
 
-- maintain consistency;
-- find historical records;
-- notice basic patterns;
-- prepare information for appointments;
-- feel organized and in control of personal tracking.
+- manter consistência;
+- encontrar registros históricos;
+- perceber padrões básicos;
+- preparar informações para consultas;
+- sentir organização e controle no acompanhamento pessoal.
 
-## Solution
+## Solução
 
-Glix provides a calm and simple experience for registering and reviewing glucose measurements.
+Glix oferece uma experiência calma e simples para registrar e revisar medições de glicemia.
 
-The product focuses on:
+O produto se concentra em:
 
-- quick registration;
-- organized history;
-- visual trends;
-- clear filters;
-- secure personal access;
-- mobile-first daily use.
+- registro rápido;
+- histórico organizado;
+- tendências visuais;
+- filtros claros;
+- acesso pessoal seguro;
+- uso diário mobile-first.
 
-The goal is not to interpret health data clinically. The goal is to make personal tracking easier and clearer.
+O objetivo não é interpretar dados de saúde clinicamente. O objetivo é tornar o acompanhamento pessoal mais fácil e claro.
 
-## Target Audience
+## Público-Alvo
 
-Initial audience:
+Público inicial:
 
-- adults who monitor glucose regularly;
-- people with diabetes or pre-diabetes;
-- people who want a more organized personal tracking routine;
-- users who currently rely on paper, spreadsheets or generic apps;
-- people preparing records for conversations with healthcare professionals.
+- adultos que monitoram glicemia regularmente;
+- pessoas com diabetes ou pré-diabetes;
+- pessoas que desejam uma rotina de acompanhamento pessoal mais organizada;
+- usuários que atualmente dependem de papel, planilhas ou apps genéricos;
+- pessoas preparando registros para conversas com profissionais de saúde.
 
-## Value Proposition
+## Proposta de Valor
 
-Glix helps users answer simple personal questions:
+Glix ajuda usuários a responder perguntas pessoais simples:
 
-- What did I record recently?
-- How has my glucose changed over time?
-- What was my average in a selected period?
-- Which records were higher or lower?
-- Can I show my history more clearly when needed?
+- O que registrei recentemente?
+- Como minha glicemia mudou ao longo do tempo?
+- Qual foi minha média em um período selecionado?
+- Quais registros foram mais altos ou mais baixos?
+- Posso mostrar meu histórico com mais clareza quando necessário?
 
-The value is clarity, organization and confidence in personal record keeping.
+O valor está em clareza, organização e confiança na manutenção dos registros pessoais.
 
-## Differentiators
+## Diferenciais
 
-- Mobile-first experience
-- Calm health tech visual identity
-- Simple and focused dashboard
-- Supabase authentication and Row Level Security
-- Visual glucose classification
-- Automatic insights without clinical claims
-- Reusable architecture ready for iteration
-- Portfolio-friendly implementation with real code
+- Experiência mobile-first
+- Identidade visual health tech calma
+- Dashboard simples e focado
+- Autenticação Supabase e Row Level Security
+- Classificação visual de glicemia
+- Insights automáticos sem alegações clínicas
+- Arquitetura reutilizável pronta para iteração
+- Implementação adequada para portfólio, com código real
 
-## Product Positioning
+## Posicionamento do Produto
 
-Glix should be positioned as:
+Glix deve ser posicionado como:
 
-> A secure and simple digital glucose diary for personal organization.
+> Um diário digital de glicemia seguro e simples para organização pessoal.
 
-Glix should not be positioned as:
+Glix não deve ser posicionado como:
 
-- a diagnostic tool;
-- a medical device;
-- a treatment recommender;
-- a replacement for healthcare professionals.
+- ferramenta de diagnóstico;
+- dispositivo médico;
+- recomendador de tratamento;
+- substituto de profissionais de saúde.
 
-## Future Freemium Model
+## Futuro Modelo Freemium
 
-Possible free tier:
+Possível plano gratuito:
 
-- basic glucose records;
-- limited history;
-- basic dashboard;
-- simple filters;
-- PWA install.
+- registros básicos de glicemia;
+- histórico limitado;
+- dashboard básico;
+- filtros simples;
+- instalação como PWA.
 
-Possible premium tier:
+Possível plano premium:
 
-- full history;
-- CSV/PDF exports;
-- advanced reports;
-- reminders;
-- custom tags;
-- richer trend views;
-- secure sharing options.
+- histórico completo;
+- exportações CSV/PDF;
+- relatórios avançados;
+- lembretes;
+- tags customizadas;
+- visualizações de tendência mais ricas;
+- opções seguras de compartilhamento.
 
-Any premium feature must preserve the product boundary: organization and tracking, not medical diagnosis.
+Qualquer funcionalidade premium deve preservar o limite do produto: organização e acompanhamento, não diagnóstico médico.
 
-## Long-Term Vision
+## Visão de Longo Prazo
 
-The long-term vision is to become a lightweight personal health record companion for glucose tracking.
+A visão de longo prazo é se tornar um companheiro leve de registro pessoal de saúde para acompanhamento de glicemia.
 
-Future versions could support:
+Versões futuras poderiam oferecer:
 
-- better reports;
-- clearer visual summaries;
-- reminders;
-- exports for appointments;
-- optional automations;
-- privacy-first sharing flows.
+- relatórios melhores;
+- resumos visuais mais claros;
+- lembretes;
+- exportações para consultas;
+- automações opcionais;
+- fluxos de compartilhamento com privacidade como prioridade.
 
-The product should remain calm, trustworthy and easy to understand.
+O produto deve permanecer calmo, confiável e fácil de entender.
 
-## AI-Assisted Development Narrative
+## Narrativa de Desenvolvimento Assistido por IA
 
-Glix was developed with an AI-assisted development approach. ChatGPT, Codex/Antigravity and other low-friction tools supported architecture, implementation, refactoring, branding and documentation.
+O Glix foi desenvolvido com uma abordagem de desenvolvimento assistida por IA. ChatGPT, Codex/Antigravity e outras ferramentas low-friction apoiaram arquitetura, implementação, refatoração, branding e documentação.
 
-This workflow accelerated development, but the project still uses real code, explicit architecture decisions, TypeScript, Server Actions, Supabase integration, validation and production deployment.
+Esse fluxo acelerou o desenvolvimento, mas o projeto ainda usa código real, decisões explícitas de arquitetura, TypeScript, Server Actions, integração com Supabase, validação e deploy em produção.

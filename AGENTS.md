@@ -1,82 +1,82 @@
 # AGENTS.md - Glix
 
-Guidance for future Codex sessions working on Glix.
+Orientações para futuras sessões do Codex trabalhando no Glix.
 
-## Project Summary
+## Resumo do Projeto
 
-Glix is a mobile-first PWA/micro-SaaS for personal glucose logging. It is a digital diary for organizing glucose measurements, trends and history. It must not be presented or evolved as a medical diagnosis, treatment or recommendation tool.
+Glix é um PWA/micro-SaaS mobile-first para registro pessoal de glicemia. É um diário digital para organizar medições de glicemia, tendências e histórico. Ele não deve ser apresentado nem evoluído como ferramenta de diagnóstico, tratamento ou recomendação médica.
 
 ## Stack
 
-- Next.js with App Router
+- Next.js com App Router
 - TypeScript
 - Tailwind CSS
-- shadcn/ui-style components
+- componentes no estilo shadcn/ui
 - Supabase Auth
-- Supabase Database with Row Level Security
-- Vercel deployment
-- PWA manifest and public icons
+- Supabase Database com Row Level Security
+- deploy na Vercel
+- manifest de PWA e ícones públicos
 
-Before changing framework-specific code, remember this project uses a modern Next.js version. Check current project patterns and local files before assuming older API behavior.
+Antes de alterar código específico de framework, lembre que este projeto usa uma versão moderna do Next.js. Verifique os padrões atuais do projeto e os arquivos locais antes de assumir comportamento de APIs antigas.
 
-## Current Product Areas
+## Áreas Atuais do Produto
 
-- `/registrar`: primary post-login flow for fast glucose registration.
-- `/dashboard`: short summary view with key indicators and chart.
-- `/historico`: detailed history with filters, editing and deletion.
-- Public pages: landing, login and registration.
+- `/registrar`: fluxo principal após login para registro rápido de glicemia.
+- `/dashboard`: visão curta de resumo com indicadores principais e gráfico.
+- `/historico`: histórico detalhado com filtros, edição e exclusão.
+- Páginas públicas: landing, login e cadastro.
 
-Preserve the product tone: calm, clear, health-tech, non-alarmist and focused on organization.
+Preserve o tom do produto: calmo, claro, health tech, sem alarmismo e focado em organização.
 
-## Validation Commands
+## Comandos de Validação
 
-Use Windows commands:
+Use comandos Windows:
 
 ```bash
 npm.cmd run lint
 npm.cmd run build
 ```
 
-Run both after code changes when feasible. Documentation-only changes can still run them when requested.
+Rode ambos após alterações de código quando viável. Alterações apenas de documentação também podem rodá-los quando solicitado.
 
-## Safety Rules
+## Regras de Segurança
 
-- Never expose or request `service_role` keys.
-- Never commit `.env.local` or real secrets.
-- Never disable RLS.
-- Never weaken Supabase policies without explicit confirmation.
-- Do not change authentication, database schema, RLS, SQL migrations or security-sensitive code without asking first.
-- Ask for confirmation before any database, authentication or security change.
-- Do not use `localStorage`, IndexedDB, service worker cache or offline cache for sensitive glucose data unless the user explicitly approves a privacy-reviewed design.
-- Do not add medical AI, diagnosis, treatment guidance, clinical recommendations or alarmist messaging.
-- Keep Glix positioned as a personal diary, not a medical device.
+- Nunca exponha nem solicite chaves `service_role`.
+- Nunca faça commit de `.env.local` ou segredos reais.
+- Nunca desative RLS.
+- Nunca enfraqueça policies do Supabase sem confirmação explícita.
+- Não altere autenticação, schema de banco, RLS, migrations SQL ou código sensível de segurança sem perguntar antes.
+- Peça confirmação antes de qualquer mudança em banco de dados, autenticação ou segurança.
+- Não use `localStorage`, IndexedDB, cache de service worker ou cache offline para dados sensíveis de glicemia, a menos que o usuário aprove explicitamente um desenho revisado de privacidade.
+- Não adicione IA médica, diagnóstico, orientação de tratamento, recomendações clínicas ou mensagens alarmistas.
+- Mantenha o Glix posicionado como diário pessoal, não como dispositivo médico.
 
-## Development Principles
+## Princípios de Desenvolvimento
 
-- Prefer small, focused changes.
-- Preserve existing architecture and Server Actions unless there is a clear reason to change them.
-- Reuse existing components and helpers before creating new abstractions.
-- Keep validation centralized in the existing glucose/domain helpers.
-- Maintain mobile-first UX and comfortable touch targets.
-- Avoid heavy dependencies unless clearly justified.
-- Separate features into incremental changes that are easy to review.
+- Prefira mudanças pequenas e focadas.
+- Preserve a arquitetura existente e as Server Actions, a menos que haja uma razão clara para mudar.
+- Reutilize componentes e helpers existentes antes de criar novas abstrações.
+- Mantenha a validação centralizada nos helpers de glicemia/domínio existentes.
+- Preserve UX mobile-first e áreas de toque confortáveis.
+- Evite dependências pesadas, salvo justificativa clara.
+- Separe funcionalidades em mudanças incrementais e fáceis de revisar.
 
-## Documentation Expectations
+## Expectativas de Documentação
 
-When changing product behavior, update relevant documentation if requested or if the change affects:
+Ao alterar comportamento do produto, atualize a documentação relevante se solicitado ou se a mudança afetar:
 
-- user flow;
-- routes;
-- security posture;
-- PWA behavior;
+- fluxo do usuário;
+- rotas;
+- postura de segurança;
+- comportamento de PWA;
 - roadmap;
-- setup instructions.
+- instruções de setup.
 
-Keep documentation professional, honest and suitable for portfolio review.
+Mantenha a documentação profissional, honesta e adequada para avaliação em portfólio.
 
-## Commit Style
+## Estilo de Commit
 
-Use short imperative commit messages, for example:
+Use mensagens curtas no imperativo, por exemplo:
 
 ```text
 Add quick glucose registration
@@ -84,4 +84,4 @@ Split dashboard and history views
 Update documentation for new app navigation
 ```
 
-Do not create commits unless the user asks for it.
+Não crie commits a menos que o usuário peça.

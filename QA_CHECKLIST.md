@@ -1,101 +1,101 @@
-# QA Checklist - Glix
+# Checklist de QA - Glix
 
-Manual checklist for validating Glix after relevant product, UX, security or code changes.
+Checklist manual para validar o Glix após mudanças relevantes de produto, UX, segurança ou código.
 
-Glix is a personal glucose tracking diary. It does not provide medical diagnosis, treatment advice or clinical recommendations.
+Glix é um diário pessoal de acompanhamento de glicemia. Ele não fornece diagnóstico médico, orientação de tratamento ou recomendações clínicas.
 
-## 1. Local Environment
+## 1. Ambiente Local
 
-- [ ] Install dependencies if needed with `npm install`.
-- [ ] Run `npm.cmd run lint`.
-- [ ] Run `npm.cmd run build`.
-- [ ] Run `npm.cmd run dev`.
-- [ ] Open `http://127.0.0.1:3000`.
-- [ ] Confirm the app loads without console/runtime errors.
+- [ ] Instalar dependências, se necessário, com `npm install`.
+- [ ] Rodar `npm.cmd run lint`.
+- [ ] Rodar `npm.cmd run build`.
+- [ ] Rodar `npm.cmd run dev`.
+- [ ] Abrir `http://127.0.0.1:3000`.
+- [ ] Confirmar que o app carrega sem erros de console/runtime.
 
-## 2. Authentication
+## 2. Autenticação
 
-- [ ] Create a new account.
-- [ ] Confirm the email flow works when required by Supabase settings.
-- [ ] Log in with a valid account.
-- [ ] Log out successfully.
-- [ ] Confirm session persistence after refreshing the browser.
-- [ ] Confirm a logged-out user cannot access `/registrar`, `/dashboard` or `/historico`.
-- [ ] Confirm a logged-in user can access `/registrar`, `/dashboard` and `/historico`.
+- [ ] Criar uma nova conta.
+- [ ] Confirmar que o fluxo de e-mail funciona quando exigido pelas configurações do Supabase.
+- [ ] Entrar com uma conta válida.
+- [ ] Sair com sucesso.
+- [ ] Confirmar persistência de sessão após atualizar o navegador.
+- [ ] Confirmar que um usuário desconectado não consegue acessar `/registrar`, `/dashboard` ou `/historico`.
+- [ ] Confirmar que um usuário logado consegue acessar `/registrar`, `/dashboard` e `/historico`.
 
-## 3. Glucose Registration
+## 3. Registro de Glicemia
 
-- [ ] Create a valid glucose measurement from `/registrar`.
-- [ ] Confirm glucose value is required.
-- [ ] Confirm values below the minimum are rejected.
-- [ ] Confirm values above the maximum are rejected.
-- [ ] Confirm context is required.
-- [ ] Confirm date/time is filled automatically.
-- [ ] Confirm date/time can be manually changed.
-- [ ] Confirm observation is optional.
-- [ ] Confirm success and error messages are understandable.
-- [ ] Confirm the new record appears in `/historico`.
+- [ ] Criar uma medição válida de glicemia a partir de `/registrar`.
+- [ ] Confirmar que o valor de glicemia é obrigatório.
+- [ ] Confirmar que valores abaixo do mínimo são rejeitados.
+- [ ] Confirmar que valores acima do máximo são rejeitados.
+- [ ] Confirmar que o contexto é obrigatório.
+- [ ] Confirmar que data/hora é preenchida automaticamente.
+- [ ] Confirmar que data/hora pode ser alterada manualmente.
+- [ ] Confirmar que observação é opcional.
+- [ ] Confirmar que mensagens de sucesso e erro são compreensíveis.
+- [ ] Confirmar que o novo registro aparece em `/historico`.
 
-## 4. Summary Dashboard
+## 4. Dashboard de Resumo
 
-- [ ] Confirm `/dashboard` loads for a logged-in user.
-- [ ] Confirm the latest measurement appears correctly.
-- [ ] Confirm the 7-day average is displayed.
-- [ ] Confirm the lowest value is displayed.
-- [ ] Confirm the highest value is displayed.
-- [ ] Confirm the trend text appears.
-- [ ] Confirm the chart renders with recent data.
-- [ ] Confirm the discreet insight appears without alarmist language.
-- [ ] Confirm the floating `+` button opens `/registrar`.
+- [ ] Confirmar que `/dashboard` carrega para um usuário logado.
+- [ ] Confirmar que a medição mais recente aparece corretamente.
+- [ ] Confirmar que a média de 7 dias é exibida.
+- [ ] Confirmar que o menor valor é exibido.
+- [ ] Confirmar que o maior valor é exibido.
+- [ ] Confirmar que o texto de tendência aparece.
+- [ ] Confirmar que o gráfico renderiza com dados recentes.
+- [ ] Confirmar que o insight discreto aparece sem linguagem alarmista.
+- [ ] Confirmar que o botão flutuante `+` abre `/registrar`.
 
-## 5. History
+## 5. Histórico
 
-- [ ] Confirm `/historico` loads for a logged-in user.
-- [ ] Confirm the complete filtered list appears.
-- [ ] Confirm period filters work.
-- [ ] Confirm context filters work.
-- [ ] Edit a record and confirm the change is saved.
-- [ ] Delete a record and confirm it is removed.
-- [ ] Confirm observations appear when present.
-- [ ] Confirm edit/delete actions keep or return the user to `/historico`.
-- [ ] Confirm the floating `+` button opens `/registrar`.
+- [ ] Confirmar que `/historico` carrega para um usuário logado.
+- [ ] Confirmar que a lista filtrada completa aparece.
+- [ ] Confirmar que os filtros de período funcionam.
+- [ ] Confirmar que os filtros de contexto funcionam.
+- [ ] Editar um registro e confirmar que a alteração é salva.
+- [ ] Excluir um registro e confirmar que ele é removido.
+- [ ] Confirmar que observações aparecem quando presentes.
+- [ ] Confirmar que ações de editar/excluir mantêm ou retornam o usuário para `/historico`.
+- [ ] Confirmar que o botão flutuante `+` abre `/registrar`.
 
-## 6. Security and Privacy
+## 6. Segurança e Privacidade
 
-- [ ] Confirm one user cannot see another user's records.
-- [ ] Confirm RLS remains enabled in Supabase.
-- [ ] Confirm `service_role` is not exposed in frontend code or public files.
-- [ ] Confirm `.env.local` is not staged or committed.
-- [ ] Confirm sensitive glucose data is not stored in `localStorage`.
-- [ ] Confirm sensitive glucose data is not stored in offline cache.
-- [ ] Confirm no feature presents medical diagnosis or treatment guidance.
+- [ ] Confirmar que um usuário não consegue ver registros de outro usuário.
+- [ ] Confirmar que RLS permanece habilitado no Supabase.
+- [ ] Confirmar que `service_role` não está exposto no código frontend ou em arquivos públicos.
+- [ ] Confirmar que `.env.local` não está em stage nem commitado.
+- [ ] Confirmar que dados sensíveis de glicemia não são armazenados em `localStorage`.
+- [ ] Confirmar que dados sensíveis de glicemia não são armazenados em cache offline.
+- [ ] Confirmar que nenhuma funcionalidade apresenta diagnóstico médico ou orientação de tratamento.
 
-## 7. PWA and Mobile
+## 7. PWA e Mobile
 
-- [ ] Install the app on a mobile device or mobile browser.
-- [ ] Confirm the app icon appears correctly.
-- [ ] Confirm the splash/loading screen matches the Glix identity.
-- [ ] Confirm navigation works on mobile.
-- [ ] Confirm buttons and touch targets are comfortable.
-- [ ] Confirm no important button is cut off.
-- [ ] Confirm `/registrar`, `/dashboard` and `/historico` are usable on small screens.
+- [ ] Instalar o app em um dispositivo mobile ou navegador mobile.
+- [ ] Confirmar que o ícone do app aparece corretamente.
+- [ ] Confirmar que a tela de splash/loading corresponde à identidade do Glix.
+- [ ] Confirmar que a navegação funciona no mobile.
+- [ ] Confirmar que botões e áreas de toque são confortáveis.
+- [ ] Confirmar que nenhum botão importante fica cortado.
+- [ ] Confirmar que `/registrar`, `/dashboard` e `/historico` são utilizáveis em telas pequenas.
 
-## 8. Production and Vercel
+## 8. Produção e Vercel
 
-- [ ] Confirm the Vercel deploy completes without errors.
-- [ ] Confirm production environment variables are configured.
-- [ ] Confirm login works in production.
-- [ ] Confirm glucose registration works in production.
-- [ ] Confirm `/dashboard` loads in production.
-- [ ] Confirm `/historico` loads in production.
-- [ ] Confirm no sensitive values appear in logs, UI or public source.
+- [ ] Confirmar que o deploy na Vercel conclui sem erros.
+- [ ] Confirmar que variáveis de ambiente de produção estão configuradas.
+- [ ] Confirmar que o login funciona em produção.
+- [ ] Confirmar que o registro de glicemia funciona em produção.
+- [ ] Confirmar que `/dashboard` carrega em produção.
+- [ ] Confirmar que `/historico` carrega em produção.
+- [ ] Confirmar que nenhum valor sensível aparece em logs, UI ou código-fonte público.
 
-## 9. Approval Before Commit or Push
+## 9. Aprovação Antes de Commit ou Push
 
-- [ ] `npm.cmd run lint` passed.
-- [ ] `npm.cmd run build` passed.
-- [ ] The main flow was tested: login -> registrar -> dashboard -> historico.
-- [ ] No sensitive key or environment value was changed.
-- [ ] Supabase, RLS and authentication changes were reviewed or avoided.
-- [ ] Documentation was updated if the change affected UX, routes, security or product behavior.
-- [ ] The change is small enough to review clearly.
+- [ ] `npm.cmd run lint` passou.
+- [ ] `npm.cmd run build` passou.
+- [ ] O fluxo principal foi testado: login -> registrar -> dashboard -> historico.
+- [ ] Nenhuma chave sensível ou valor de ambiente foi alterado.
+- [ ] Mudanças em Supabase, RLS e autenticação foram revisadas ou evitadas.
+- [ ] A documentação foi atualizada se a mudança afetou UX, rotas, segurança ou comportamento do produto.
+- [ ] A mudança é pequena o suficiente para ser revisada com clareza.

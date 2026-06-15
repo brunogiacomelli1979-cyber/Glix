@@ -1,98 +1,98 @@
-# Security - Glix
+# Segurança - Glix
 
-Glix handles personal glucose records, so security and privacy are important even though the project is an MVP.
+O Glix lida com registros pessoais de glicemia, então segurança e privacidade são importantes mesmo o projeto sendo um MVP.
 
-This document describes the current security model and future improvements.
+Este documento descreve o modelo de segurança atual e melhorias futuras.
 
-## Scope
+## Escopo
 
-Glix is a personal tracking diary. It does not provide medical diagnosis, treatment or clinical recommendations.
+Glix é um diário pessoal de acompanhamento. Ele não fornece diagnóstico médico, tratamento ou recomendações clínicas.
 
-Users own their data. The app is designed to help users organize personal records, not to replace professional medical guidance.
+Os usuários são donos dos próprios dados. O app foi desenhado para ajudar usuários a organizar registros pessoais, não para substituir orientação médica profissional.
 
-## Authentication
+## Autenticação
 
-Authentication is handled by Supabase Auth.
+A autenticação é tratada pelo Supabase Auth.
 
-Current flow:
+Fluxo atual:
 
-- email/password sign up;
-- email confirmation depending on Supabase project settings;
-- login through Supabase Auth;
-- protected dashboard route;
-- logout through a Server Action.
+- cadastro com e-mail/senha;
+- confirmação de e-mail dependendo das configurações do projeto Supabase;
+- login via Supabase Auth;
+- rota protegida de dashboard;
+- logout por meio de Server Action.
 
-Private pages should only be available to authenticated users.
+Páginas privadas devem estar disponíveis apenas para usuários autenticados.
 
 ## Supabase Auth
 
-Supabase Auth manages:
+Supabase Auth gerencia:
 
-- user identity;
-- session cookies;
-- authentication state;
-- password handling.
+- identidade do usuário;
+- cookies de sessão;
+- estado de autenticação;
+- tratamento de senha.
 
-The application does not implement custom password storage.
+A aplicação não implementa armazenamento customizado de senhas.
 
 ## Row Level Security
 
-Supabase Row Level Security is enabled for the main tables.
+Supabase Row Level Security está habilitado para as tabelas principais.
 
-RLS policies ensure users can only access their own records.
+As policies de RLS garantem que usuários só possam acessar os próprios registros.
 
-For `glucose_records`, policies cover:
+Para `glucose_records`, as policies cobrem:
 
-- select own records;
-- insert records for own user id;
-- update own records;
-- delete own records.
+- selecionar os próprios registros;
+- inserir registros para o próprio id de usuário;
+- atualizar os próprios registros;
+- excluir os próprios registros.
 
-For `profiles`, policies cover:
+Para `profiles`, as policies cobrem:
 
-- read own profile;
-- update own profile.
+- ler o próprio perfil;
+- atualizar o próprio perfil.
 
-RLS is the final enforcement layer. UI checks and query filters improve UX and clarity, but the database policies are the critical security boundary.
+RLS é a camada final de enforcement. Verificações de UI e filtros de consulta melhoram UX e clareza, mas as policies do banco de dados são a fronteira crítica de segurança.
 
-## Supabase Function Hardening
+## Hardening da Função do Supabase
 
-Glix uses a trigger function named `public.handle_new_user()` to create a row in `public.profiles` whenever Supabase Auth creates a new user in `auth.users`.
+O Glix usa uma função de trigger chamada `public.handle_new_user()` para criar uma linha em `public.profiles` sempre que o Supabase Auth cria um novo usuário em `auth.users`.
 
-The Supabase Security Advisor reported warnings for this function:
+O Supabase Security Advisor reportou avisos para essa função:
 
 - `function_search_path_mutable`
 - `anon_security_definer_function_executable`
 - `authenticated_security_definer_function_executable`
 
-These were addressed manually in the Supabase SQL Editor and reflected in `SUPABASE_SETUP.md`.
+Esses avisos foram tratados manualmente no Supabase SQL Editor e refletidos em `SUPABASE_SETUP.md`.
 
-Current hardening:
+Hardening atual:
 
-- the function remains `SECURITY DEFINER`, because it needs to insert a profile row as part of the internal auth trigger flow;
-- the function explicitly sets `search_path = public, auth`;
-- direct execute permission is revoked from `PUBLIC`;
-- direct execute permission is revoked from `anon`;
-- direct execute permission is revoked from `authenticated`;
-- the `on_auth_user_created` trigger is recreated after dropping any previous version.
+- a função permanece `SECURITY DEFINER`, porque precisa inserir uma linha de perfil como parte do fluxo interno da trigger de autenticação;
+- a função define explicitamente `search_path = public, auth`;
+- a permissão direta de execute é revogada de `PUBLIC`;
+- a permissão direta de execute é revogada de `anon`;
+- a permissão direta de execute é revogada de `authenticated`;
+- a trigger `on_auth_user_created` é recriada após remover qualquer versão anterior.
 
-### Why Fixed `search_path` Matters
+### Por Que um `search_path` Fixo Importa
 
-PostgreSQL functions can resolve unqualified object names using the active `search_path`. If a `SECURITY DEFINER` function has a mutable or unsafe search path, object resolution can become ambiguous.
+Funções do PostgreSQL podem resolver nomes de objetos não qualificados usando o `search_path` ativo. Se uma função `SECURITY DEFINER` tiver um search path mutável ou inseguro, a resolução de objetos pode se tornar ambígua.
 
-By setting:
+Ao definir:
 
 ```sql
 SET search_path = public, auth
 ```
 
-the function executes with a predictable schema resolution order. This reduces the risk of unexpected objects being resolved during function execution.
+a função executa com uma ordem previsível de resolução de schemas. Isso reduz o risco de objetos inesperados serem resolvidos durante a execução da função.
 
-### Why Revoking `EXECUTE` Matters
+### Por Que Revogar `EXECUTE` Importa
 
-The function is intended to be invoked by the internal trigger attached to `auth.users`, not directly by client roles.
+A função deve ser invocada pela trigger interna vinculada a `auth.users`, não diretamente por roles de cliente.
 
-Revoking direct execution from `PUBLIC`, `anon` and `authenticated` reduces the callable surface area:
+Revogar a execução direta de `PUBLIC`, `anon` e `authenticated` reduz a superfície chamável:
 
 ```sql
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
@@ -100,28 +100,28 @@ REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
 ```
 
-The trigger can still execute the function as part of the controlled user creation flow.
+A trigger ainda pode executar a função como parte do fluxo controlado de criação de usuário.
 
-### Trigger Role
+### Papel da Trigger
 
-The trigger `on_auth_user_created` is responsible for calling `public.handle_new_user()` after a new row is inserted into `auth.users`.
+A trigger `on_auth_user_created` é responsável por chamar `public.handle_new_user()` depois que uma nova linha é inserida em `auth.users`.
 
-This keeps profile creation automatic while avoiding direct client-side access to the function.
+Isso mantém a criação de perfil automática, evitando acesso direto client-side à função.
 
-## API Keys and Environment Variables
+## Chaves de API e Variáveis de Ambiente
 
-The frontend uses the Supabase anon/publishable key.
+O frontend usa a chave anon/publishable do Supabase.
 
-This key is expected to be public in a Supabase client-side architecture, but it must be used together with RLS.
+Espera-se que essa chave seja pública em uma arquitetura client-side com Supabase, mas ela deve ser usada em conjunto com RLS.
 
-Rules:
+Regras:
 
-- do not expose a Supabase service role key in frontend code;
-- do not commit `.env.local`;
-- do not paste real secrets into documentation;
-- use Vercel environment variables for production.
+- não exponha uma chave `service_role` do Supabase no código frontend;
+- não faça commit de `.env.local`;
+- não cole segredos reais na documentação;
+- use variáveis de ambiente da Vercel em produção.
 
-Required environment variables:
+Variáveis de ambiente obrigatórias:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
@@ -130,82 +130,82 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
 ## Server Actions
 
-Glucose record mutations are handled with Next.js Server Actions.
+Mutações de registros de glicemia são tratadas com Next.js Server Actions.
 
-Current protections:
+Proteções atuais:
 
-- read authenticated user before mutation;
-- redirect unauthenticated users to login;
-- validate input before writing;
-- filter update/delete operations by `user_id`;
-- revalidate dashboard after mutations.
+- ler usuário autenticado antes da mutação;
+- redirecionar usuários não autenticados para login;
+- validar entrada antes da escrita;
+- filtrar operações de update/delete por `user_id`;
+- revalidar o dashboard após mutações.
 
-## Input Validation
+## Validação de Entrada
 
-Validation is centralized in `src/lib/glucose.ts`.
+A validação é centralizada em `src/lib/glucose.ts`.
 
-Current validation rules:
+Regras atuais de validação:
 
-- glucose value must be between 20 and 600 mg/dL;
-- context must be one of the known measurement contexts;
-- notes are limited to 300 characters;
-- invalid dates are rejected;
-- empty required submissions are rejected.
+- valor de glicemia deve estar entre 20 e 600 mg/dL;
+- contexto deve ser um dos contextos de medição conhecidos;
+- observações são limitadas a 300 caracteres;
+- datas inválidas são rejeitadas;
+- envios obrigatórios vazios são rejeitados.
 
-Validation improves data quality and user experience, but it does not replace database-level security.
+A validação melhora a qualidade dos dados e a experiência do usuário, mas não substitui a segurança em nível de banco de dados.
 
-## Privacy
+## Privacidade
 
-Glix stores personal glucose records connected to user accounts.
+O Glix armazena registros pessoais de glicemia conectados a contas de usuário.
 
-Current privacy principles:
+Princípios atuais de privacidade:
 
-- each user should only access their own data;
-- records are not publicly exposed;
-- no service role key is used in the frontend;
-- no diagnosis or treatment recommendation is generated.
+- cada usuário deve acessar apenas os próprios dados;
+- registros não são expostos publicamente;
+- nenhuma chave `service_role` é usada no frontend;
+- nenhum diagnóstico ou recomendação de tratamento é gerado.
 
-## LGPD Considerations
+## Considerações de LGPD
 
-For a production-grade health-related product in Brazil, LGPD requirements should be reviewed carefully.
+Para um produto em produção relacionado à saúde no Brasil, requisitos de LGPD devem ser revisados com cuidado.
 
-Future considerations:
+Considerações futuras:
 
-- privacy policy;
-- terms of use;
-- account deletion flow;
-- data export;
-- data retention policy;
-- explicit consent language;
-- audit of third-party processors;
-- incident response process.
+- política de privacidade;
+- termos de uso;
+- fluxo de exclusão de conta;
+- exportação de dados;
+- política de retenção de dados;
+- linguagem de consentimento explícito;
+- auditoria de operadores/fornecedores terceiros;
+- processo de resposta a incidentes.
 
-## Current Limitations
+## Limitações Atuais
 
-The MVP does not yet include:
+O MVP ainda não inclui:
 
-- full privacy policy page;
-- automated security tests;
-- account deletion;
-- user data export;
-- audit logs;
-- rate limiting strategy;
-- production monitoring;
-- formal threat model.
+- página completa de política de privacidade;
+- testes automatizados de segurança;
+- exclusão de conta;
+- exportação de dados do usuário;
+- logs de auditoria;
+- estratégia de rate limiting;
+- monitoramento de produção;
+- threat model formal.
 
-Supabase Auth also reports `Leaked Password Protection Disabled`. The feature "Prevent use of leaked passwords / HaveIBeenPwned.org" is available on Supabase Pro plans. Glix is currently an MVP/test project on the Free plan, so this remains a documented limitation rather than an active configuration issue.
+Supabase Auth também reporta `Leaked Password Protection Disabled`. O recurso "Prevent use of leaked passwords / HaveIBeenPwned.org" está disponível em planos Supabase Pro. O Glix atualmente é um projeto MVP/teste no plano Free, então isso permanece como limitação documentada, não como problema ativo de configuração.
 
-## Recommended Next Steps
+## Próximos Passos Recomendados
 
-- Add privacy policy and terms pages.
-- Add account deletion workflow.
-- Add CSV/PDF export with clear user consent.
-- Generate typed Supabase database types.
-- Add tests for validation rules.
-- Add monitoring and error tracking.
-- Review Supabase policies before scaling to real users.
-- Enable leaked password protection when migrating to a Supabase Pro plan.
+- Adicionar páginas de política de privacidade e termos.
+- Adicionar fluxo de exclusão de conta.
+- Adicionar exportação CSV/PDF com consentimento claro do usuário.
+- Gerar tipos de banco de dados do Supabase.
+- Adicionar testes para regras de validação.
+- Adicionar monitoramento e rastreamento de erros.
+- Revisar policies do Supabase antes de escalar para usuários reais.
+- Habilitar proteção contra senhas vazadas ao migrar para um plano Supabase Pro.
 
-## Health Disclaimer
+## Aviso de Saúde
 
-Glix is not a medical device. It does not diagnose, treat, prevent or cure medical conditions. Users should consult qualified healthcare professionals before making health decisions.
+Glix não é um dispositivo médico. Ele não diagnostica, trata, previne ou cura condições médicas. Usuários devem consultar profissionais de saúde qualificados antes de tomar decisões de saúde.

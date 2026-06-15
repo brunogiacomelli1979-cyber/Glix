@@ -1,4 +1,4 @@
-# Database Structure — Glix
+# Estrutura do Banco de Dados — Glix
 
 ## Tabela: profiles
 
